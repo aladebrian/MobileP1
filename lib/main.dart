@@ -1,4 +1,7 @@
+import 'dart:collection';
 import 'package:flutter/material.dart';
+import 'package:recipe_planner/recipe_page.dart';
+import 'package:recipe_planner/recipes.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,17 +32,42 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<String> recipes = ["Recipe 1", "Recipe 2", "Recipe 3"];
+  List<Recipe> recipes = [
+    Recipe(
+      name: "Recipe 1",
+      steps: ["do this", 'then this', 'finally this'],
+      ingredients: {"a little bit of this": 1, 'a little bit of that': 2},
+      tags: HashSet.from(["favorite"]),
+    ),
+    Recipe(
+      name: "Recipe 2",
+      steps: ["do this again", 'then this', 'unfortunately this'],
+      ingredients: {"a lot of this": 10, 'a little bit of that': 20},
+      tags: HashSet.from(["saved"]),
+    ),
+  ];
+  GestureDetector recipeToGridTile(index) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RecipePage(recipe: recipes[index]),
+          ),
+        );
+      },
+      child: GridTile(
+        header: Text(recipes[index].name),
+        child: Image(image: recipes[index].image),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: GridView.builder(
@@ -48,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         itemCount: recipes.length,
         itemBuilder: (context, index) {
-          return GridTile(child: Text(recipes[index]));
+          return recipeToGridTile(index);
         },
       ),
     );
