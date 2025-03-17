@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:recipe_planner/recipe_page.dart';
 import 'package:recipe_planner/recipes.dart';
+import 'package:recipe_planner/saved_recipes_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "a little bit of this": Amount(number: 1, unit: 'quart'),
         'a little bit of that': Amount(number: 0.5),
       },
-      tags: HashSet.from(["favorite", "vegan"]),
+      tags: HashSet.from([Tag.favorited, Tag.vegan]),
     ),
     Recipe(
       name: "Recipe 2",
@@ -49,29 +50,21 @@ class _MyHomePageState extends State<MyHomePage> {
         "a lot of this": Amount(number: 20, unit: 'cups'),
         'a little bit of that': Amount(number: 5),
       },
-      tags: HashSet.from(["saved", "vegetarian"]),
+      tags: HashSet.from([Tag.saved, Tag.vegetarian]),
     ),
   ];
 
-  void tagNullCheck(index) {
-    // Needed because an empty hashset cannot be the default object for tags,
-    // as an empty hashset cannot be constant
-    recipes[index].tags ??= HashSet.from([]);
-  }
-
-  void changeTag(int index, String tag) {
-    tagNullCheck(index);
+  void changeTag(int index, Tag tag) {
     setState(() {
-      recipes[index].tags!.contains(tag)
-          ? recipes[index].tags!.remove(tag)
-          : recipes[index].tags!.add(tag);
+      recipes[index].tags.contains(tag)
+          ? recipes[index].tags.remove(tag)
+          : recipes[index].tags.add(tag);
     });
   }
 
-  Color hasTag(int index, String tag, Color yes, Color no) {
-    tagNullCheck(index);
-    return recipes[index].tags!.contains(tag) ? yes : no;
-  }
+  // Color hasTag(int index, String tag, Color yes, Color no) {
+  //   return recipes[index].tags.contains(tag) ? yes : no;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +72,17 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SavedRecipesPage()),
+              );
+            },
+            icon: Icon(Icons.favorite),
+          ),
+        ],
       ),
       body: GridView.builder(
         padding: EdgeInsets.all(8.0),
@@ -136,7 +140,6 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-
   SizedBox recipeHomeHeader(int index) {
     // Used in homeScreenRecipeTile.
     // contains title and trailing icon buttons
@@ -161,27 +164,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   IconButton(
-                    onPressed: () => changeTag(index, "favorite"),
+                    onPressed: () => changeTag(index, Tag.favorited),
                     icon: Icon(
-                      Icons.favorite,
-                      color: hasTag(
-                        index,
-                        "favorite",
-                        const Color.fromRGBO(229, 57, 53, 1),
-                        const Color.fromRGBO(158, 158, 158, 1),
-                      ),
+                      Tag.favorited.icon,
+                      color:
+                          recipes[index].tags.contains(Tag.favorited)
+                              ? Tag.favorited.color
+                              : Tag.defaultColor,
                     ),
                   ),
                   IconButton(
-                    onPressed: () => changeTag(index, "saved"),
+                    onPressed: () => changeTag(index, Tag.saved),
                     icon: Icon(
-                      Icons.star,
-                      color: hasTag(
-                        index,
-                        "saved",
-                        const Color.fromRGBO(251, 192, 45, 1),
-                        const Color.fromRGBO(158, 158, 158, 1),
-                      ),
+                      Tag.saved.icon,
+                      color:
+                          recipes[index].tags.contains(Tag.saved)
+                              ? Tag.saved.color
+                              : Tag.defaultColor,
                     ),
                   ),
                 ],
