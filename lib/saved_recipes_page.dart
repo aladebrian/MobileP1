@@ -27,7 +27,6 @@ class _SavedRecipesPageState extends State<SavedRecipesPage> {
         ),
         itemCount: savedRecipes.length,
         itemBuilder: (context, index) => Placeholder(),
-        // homeScreenRecipeTile(index),
       ),
     );
   }
