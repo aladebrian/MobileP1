@@ -34,4 +34,10 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
       weeklyMeals[day]?.remove(recipe);
     });
   }
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Placeholder();
+  }
 }

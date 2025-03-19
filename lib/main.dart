@@ -31,7 +31,14 @@ class MyHomePage extends StatefulWidget {
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+// TODO: 
+//  - Change ui and logic to fit best practices according to 
+//  https://blog.codemagic.io/how-to-improve-the-performance-of-your-flutter-app. 
+//  (Specifically the Don't Split Your Widgets Into Methods section)
+//  - Rewrite the tiles to be more visually appealing. Similar to the tiles on the tasty app.
 
+
+// - Chage 
 class _MyHomePageState extends State<MyHomePage> {
   List<Recipe> recipes = [
     Recipe(
@@ -54,18 +61,6 @@ class _MyHomePageState extends State<MyHomePage> {
     ),
   ];
 
-  void changeTag(int index, Tag tag) {
-    setState(() {
-      recipes[index].tags.contains(tag)
-          ? recipes[index].tags.remove(tag)
-          : recipes[index].tags.add(tag);
-    });
-  }
-
-  // Color hasTag(int index, String tag, Color yes, Color no) {
-  //   return recipes[index].tags.contains(tag) ? yes : no;
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,7 +72,9 @@ class _MyHomePageState extends State<MyHomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SavedRecipesPage()),
+                MaterialPageRoute(
+                  builder: (context) => SavedRecipesPage(recipes: recipes),
+                ),
               );
             },
             icon: Icon(Icons.favorite),
@@ -140,13 +137,40 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  void toggleTag(int index, Tag tag) {
+    setState(() {
+      recipes[index].tags.contains(tag)
+          ? recipes[index].tags.remove(tag)
+          : recipes[index].tags.add(tag);
+    });
+  }
+
+  Color tagColor(int index, Tag tag) {
+    return recipes[index].tags.contains(tag) ? tag.color : Tag.defaultColor;
+  }
+
+  List<IconButton> recipeHomeHeaderIconButtons(int index) {
+    const List<Tag> tagsUsed = [Tag.favorited, Tag.saved];
+    List<IconButton> resultingIconButtons = [];
+    for (Tag tagUsed in tagsUsed) {
+      resultingIconButtons.add(
+        IconButton(
+          onPressed: () => toggleTag(index, tagUsed),
+          icon: Icon(tagUsed.icon, color: tagColor(index, tagUsed)),
+        ),
+      );
+    }
+    return resultingIconButtons;
+  }
+
   SizedBox recipeHomeHeader(int index) {
     // Used in homeScreenRecipeTile.
     // contains title and trailing icon buttons
     // TODO:
     //  - Use FittedBox for header responsiveness on different screen sizes.
     //  - Fix alignment of row's icons
-    //  - make the icons closer to each other. remove the black background
+    //  - make the icons closer to each other.
 
     return SizedBox(
       // color: Colors.blue[50],
@@ -162,28 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () => changeTag(index, Tag.favorited),
-                    icon: Icon(
-                      Tag.favorited.icon,
-                      color:
-                          recipes[index].tags.contains(Tag.favorited)
-                              ? Tag.favorited.color
-                              : Tag.defaultColor,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () => changeTag(index, Tag.saved),
-                    icon: Icon(
-                      Tag.saved.icon,
-                      color:
-                          recipes[index].tags.contains(Tag.saved)
-                              ? Tag.saved.color
-                              : Tag.defaultColor,
-                    ),
-                  ),
-                ],
+                children: recipeHomeHeaderIconButtons(index),
               ),
             ),
           ),
