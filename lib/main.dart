@@ -2,7 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:recipe_planner/recipe_page.dart';
 import 'package:recipe_planner/recipes.dart';
-import 'package:recipe_planner/saved_recipes_page.dart';
+import 'mealplanner_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +40,9 @@ class MyHomePage extends StatefulWidget {
 
 // - Chage 
 class _MyHomePageState extends State<MyHomePage> {
+  // Cart to hold added recipes
+  List<Recipe> cartRecipes = [];
+
   List<Recipe> recipes = [
     Recipe(
       name: "Recipe 1",
@@ -67,6 +70,12 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart_checkout),
+            onPressed: navigateToMealPlanner,
+          ),
+        ],
         actions: [
           IconButton(
             onPressed: () {
