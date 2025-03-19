@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:recipe_planner/recipe_page.dart';
 import 'package:recipe_planner/recipes.dart';
+import 'mealplanner_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +33,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // Cart to hold added recipes
+  List<Recipe> cartRecipes = [];
+
   List<Recipe> recipes = [
     Recipe(
       name: "Recipe 1",
@@ -73,12 +77,35 @@ class _MyHomePageState extends State<MyHomePage> {
     return recipes[index].tags!.contains(tag) ? yes : no;
   }
 
+  // Add a recipe to the cart
+  void addToCart(Recipe recipe) {
+    setState(() {
+      cartRecipes.add(recipe);
+    });
+  }
+
+  // Navigate to Meal Planner screen and pass the carted recipes
+  void navigateToMealPlanner() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MealPlannerScreen(cartRecipes: cartRecipes),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.shopping_cart_checkout),
+            onPressed: navigateToMealPlanner,
+          ),
+        ],
       ),
       body: GridView.builder(
         padding: EdgeInsets.all(8.0),
