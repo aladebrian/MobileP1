@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:recipe_planner/recipe_page.dart';
 import 'package:recipe_planner/recipes.dart';
 
 class SavedRecipesPage extends StatefulWidget {
