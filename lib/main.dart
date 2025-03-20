@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:provider/provider.dart';
 import 'package:recipe_planner/recipe_page.dart';
 import 'package:recipe_planner/recipes.dart';
 import 'package:recipe_planner/saved_recipes_page.dart';
@@ -21,7 +22,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: ChangeNotifierProvider(
+        create: (context) => RecipeModel(),
+        child: const MyHomePage(title: 'Flutter Demo Home Page'),
+      ),
     );
   }
 }
@@ -36,56 +40,16 @@ class MyHomePage extends StatefulWidget {
 
 // TODO:
 //  - Change ui and logic to fit best practices according to
-//  https://blog.codemagic.io/how-to-improve-the-performance-of-your-flutter-app.
+//  https://blog.codemagic.io/how-to-improve-the-performance-of-your-flutter-app and
+//  https://www.youtube.com/watch?v=IOyq-eTRhvo
 //  (Specifically the Don't Split Your Widgets Into Methods section)
 //  - Rewrite the tiles to be more visually appealing. Similar to the tiles on the tasty app.
 //  - The favorites are going to have favorites only. "saved" is no longer going to be a tag.
-//  any recipe added to cart will be put into a list.
+//  any recipe added to cart will be put into a list (Tentative idea)
 class _MyHomePageState extends State<MyHomePage> {
   // Cart to hold added recipes
   List<Recipe> cartRecipes = [];
-  List<Recipe> allRecipes = [
-    Recipe(
-      name: "Recipe 1",
-      steps: ["do this", 'then this', 'finally this'],
-      ingredients: {
-        "a little bit of this": Amount(number: 1, unit: 'quart'),
-        'a little bit of that': Amount(number: 0.5),
-      },
-      tags: HashSet.from([Tag.favorited, Tag.vegan]),
-      image: AssetImage("assets/food.avif"),
-    ),
-    Recipe(
-      name: "Recipe 2 this is an extremely long recipe name unfortunately, its quite weird how long this is",
-      steps: ["do this again", 'then this', 'unfortunately this'],
-      ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
-      },
-      tags: HashSet.from([Tag.saved, Tag.vegetarian]),
-      image: AssetImage("assets/food2.webp"),
-    ),
-    Recipe(
-      name: "Recipe 3",
-      steps: ["do this again", 'then this', 'unfortunately this'],
-      ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
-      },
-      tags: HashSet.from([Tag.saved, Tag.vegetarian]),
-    ),
-    Recipe(
-      name: "Recipe 4",
-      steps: ["do this again", 'then this', 'unfortunately this'],
-      ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
-      },
-      tags: HashSet.from([Tag.saved, Tag.vegetarian]),
-      image: AssetImage("assets/food3.png"),
-    ),
-  ];
-  late List<Recipe> filteredRecipes = allRecipes.toList();
+
   // late List<Recipe> filteredRecipes =
   //     allRecipes
   //         .where((recipe) => recipe.tags.containsAll(_selection))
@@ -102,48 +66,54 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.shopping_cart_checkout),
-            onPressed: navigateToMealPlanner,
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SavedRecipesPage(recipes: allRecipes),
+    return Consumer<RecipeModel>(
+      builder:
+          (context, value, child) => Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: Text(widget.title),
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.shopping_cart_checkout),
+                  onPressed: navigateToMealPlanner,
                 ),
-              );
-            },
-            icon: Icon(Icons.favorite),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            FilterButtons(),
-            Expanded(
-              child: MasonryGridView.builder(
-                padding: EdgeInsets.all(8.0),
-                gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                IconButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) =>
+                                SavedRecipesPage(recipes: value.recipes),
+                      ),
+                    );
+                  },
+                  icon: Icon(Icons.favorite),
                 ),
-                itemCount: filteredRecipes.length,
-                itemBuilder: (context, index) {
-                  Recipe recipe = filteredRecipes[index];
-                  return RecipeTile(recipe: recipe);
-                },
+              ],
+            ),
+            body: Center(
+              child: Column(
+                children: [
+                  FilterButtons(),
+                  Expanded(
+                    child: MasonryGridView.builder(
+                      padding: EdgeInsets.all(8.0),
+                      gridDelegate:
+                          SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                          ),
+                      itemCount: value.filteredRecipes.length,
+                      itemBuilder: (context, index) {
+                        Recipe recipe = value.filteredRecipes[index];
+                        return RecipeTile(recipe: recipe, showIcons: true);
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
     );
   }
   // TODO: EVERYTHING COMMENTED OUT BELOW NEEDS TO BE REFACTORED.
@@ -256,19 +226,89 @@ class _MyHomePageState extends State<MyHomePage> {
   // }
 }
 
+class RecipeModel extends ChangeNotifier {
+  static final List<Recipe> _allRecipes = [
+    Recipe(
+      name: "Recipe 1",
+      steps: ["do this", 'then this', 'finally this'],
+      ingredients: {
+        "a little bit of this": Amount(number: 1, unit: 'quart'),
+        'a little bit of that': Amount(number: 0.5),
+      },
+      tags: HashSet.from([Tag.favorited, Tag.vegan]),
+      image: AssetImage("assets/food.avif"),
+    ),
+    Recipe(
+      name:
+          "Recipe 2 this is an extremely long recipe name unfortunately, its quite weird how long this is",
+      steps: ["do this again", 'then this', 'unfortunately this'],
+      ingredients: {
+        "a lot of this": Amount(number: 20, unit: 'cups'),
+        'a little bit of that': Amount(number: 5),
+      },
+      tags: HashSet.from([Tag.saved, Tag.vegetarian]),
+      image: AssetImage("assets/food2.webp"),
+    ),
+    Recipe(
+      name: "Recipe 3",
+      steps: ["do this again", 'then this', 'unfortunately this'],
+      ingredients: {
+        "a lot of this": Amount(number: 20, unit: 'cups'),
+        'a little bit of that': Amount(number: 5),
+      },
+      tags: HashSet.from([Tag.pescetarian]),
+    ),
+    Recipe(
+      name: "Recipe 4",
+      steps: ["do this again", 'then this', 'unfortunately this'],
+      ingredients: {
+        "a lot of this": Amount(number: 20, unit: 'cups'),
+        'a little bit of that': Amount(number: 5),
+      },
+      tags: HashSet.from([]),
+      image: AssetImage("assets/food3.png"),
+    ),
+  ];
+  Set<Tag> filters = {};
+  List<Recipe> get recipes => _allRecipes;
+  List<Recipe> get filteredRecipes =>
+      _allRecipes.where((recipe) => recipe.tags.containsAll(filters)).toList();
+
+  void addFilter(Tag filter) {
+    filters.add(filter);
+    notifyListeners();
+  }
+
+  void removeFilter(Tag filter) {
+    filters.remove(filter);
+    notifyListeners();
+  }
+}
+
 class RecipeTile extends StatelessWidget {
-  const RecipeTile({super.key, required this.recipe});
+  const RecipeTile({super.key, required this.recipe, this.showIcons = true});
   final Recipe recipe;
+  final bool showIcons;
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          RecipeImage(image: recipe.image),
-          RecipeText(recipe: recipe),
-        ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => RecipePage(recipe: recipe)),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            RecipeImage(image: recipe.image, showIcons: showIcons),
+            RecipeText(recipe: recipe),
+          ],
+        ),
       ),
     );
   }
@@ -285,23 +325,24 @@ class RecipeText extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(recipe.name),
         Wrap(
           direction: Axis.horizontal,
           children: [
-            for (Tag tag in recipe.tags) Icon(tag.icon, color: tag.color, ),
+            for (Tag tag in recipe.tags) Icon(tag.icon, color: tag.color),
           ],
         ),
+        Text(recipe.name),
       ],
     );
   }
 }
 
 class RecipeImage extends StatelessWidget {
-  // TODO: make iconbuttons actually do stuff in the main build. 
+  // TODO: make iconbuttons actually do stuff in the main build.
   //  - change the color maybe
-  const RecipeImage({super.key, required this.image});
+  const RecipeImage({super.key, required this.image, required this.showIcons});
   final AssetImage image;
+  final bool showIcons;
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
@@ -312,20 +353,22 @@ class RecipeImage extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             Image(image: image, fit: BoxFit.cover),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: IconButton.filled(
-                onPressed: () {},
-                icon: Icon(Icons.favorite),
+            if (showIcons) ...[
+              Align(
+                alignment: Alignment.bottomRight,
+                child: IconButton.filled(
+                  onPressed: () {},
+                  icon: Icon(Icons.favorite),
+                ),
               ),
-            ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: IconButton.filled(
-                onPressed: () {},
-                icon: Icon(Icons.shopping_cart),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: IconButton.filled(
+                  onPressed: () {},
+                  icon: Icon(Icons.shopping_cart),
+                ),
               ),
-            ),
+            ],
           ],
         ),
       ),
@@ -342,30 +385,26 @@ class FilterButtons extends StatefulWidget {
 
 class _FilterButtonsState extends State<FilterButtons> {
   // TODO: make _selected change the actual filter in the main build.
-  Set<Tag> _selected = {};
-
-  void updateSelected(Set<Tag> newSelection) {
-    setState(() {
-      _selected = newSelection;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton(
-      multiSelectionEnabled: true,
-      emptySelectionAllowed: true,
-      segments: <ButtonSegment<Tag>>[
-        ButtonSegment(value: Tag.vegan, label: Text(Tag.vegan.name)),
-        ButtonSegment(value: Tag.vegetarian, label: Text(Tag.vegetarian.name)),
-        ButtonSegment(
-          value: Tag.pescetarian,
-          label: Text(Tag.pescetarian.name),
-        ),
-        ButtonSegment(value: Tag.favorited, label: Text(Tag.favorited.name)),
-      ],
-      selected: _selected,
-      onSelectionChanged: updateSelected,
+    return Consumer<RecipeModel>(
+      builder:
+          (context, value, child) => Wrap(
+            children:
+                Tag.values.map((Tag tag) {
+                  return FilterChip(
+                    label: Text(tag.name),
+                    selected: value.filters.contains(tag),
+                    onSelected: (bool selected) {
+                      final recipes = context.read<RecipeModel>();
+                      selected
+                          ? recipes.addFilter(tag)
+                          : recipes.removeFilter(tag);
+                    },
+                  );
+                }).toList(),
+          ),
     );
   }
 }
