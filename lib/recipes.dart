@@ -16,7 +16,7 @@ class Recipe {
     required this.steps,
     required this.ingredients,
     HashSet<Tag>? tags,
-    this.image = const AssetImage("assets/placeholder.jpg"),
+    this.image = const AssetImage("assets/placeholder.avif"),
   }) : tags = tags ?? HashSet<Tag>.from([]);
 }
 
@@ -31,7 +31,7 @@ class Amount {
 }
 
 enum Tag {
-  saved(Color.fromRGBO(251, 192, 45, 1), Icons.star),
+  saved(Color.fromRGBO(251, 192, 45, 1), Icons.shopping_cart),
   favorited(Color.fromRGBO(229, 57, 53, 1), Icons.favorite),
   vegetarian(Color.fromRGBO(22, 201, 43, 1), Icons.eco),
   vegan(Color.fromRGBO(5, 115, 47, 1), Icons.compost),
@@ -41,4 +41,5 @@ enum Tag {
   final IconData icon;
   const Tag(this.color, this.icon);
   static Color get defaultColor => const Color.fromRGBO(158, 158, 158, 1);
+
 }
