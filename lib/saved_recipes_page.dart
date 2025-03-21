@@ -8,25 +8,22 @@ class SavedRecipesPage extends StatelessWidget {
   const SavedRecipesPage({super.key});
   @override
   Widget build(BuildContext context) {
-    return Consumer<RecipeModel>(
-      builder:
-          (context, value, child) => Scaffold(
-            appBar: AppBar(),
-            body: Center(
-              child: MasonryGridView.builder(
-                gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                ),
-                itemCount: value.favorites.length,
-                itemBuilder: (context, index) {
-                  return RecipeTile(
-                    recipe: value.favorites.toList()[index],
-                    showIcons: false,
-                  );
-                },
-              ),
-            ),
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: MasonryGridView.builder(
+          gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
           ),
+          itemCount: context.read<RecipeModel>().favorites.length,
+          itemBuilder: (context, index) {
+            return RecipeTile(
+              recipe: context.read<RecipeModel>().favorites.toList()[index],
+              showIcons: false,
+            );
+          },
+        ),
+      ),
     );
   }
 }
