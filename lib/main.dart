@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       MaterialPageRoute(
                         builder:
                             (context) =>
-                                SavedRecipesPage(recipes: value.recipes),
+                                SavedRecipesPage(recipes: RecipeModel.recipes),
                       ),
                     );
                   },
@@ -178,15 +178,6 @@ class _MyHomePageState extends State<MyHomePage> {
   //   return resultingIconButtons;
   // }
 
-  // List<Icon> recipeTags(Recipe recipe) {
-  //   List<Icon> recipeIcons = [];
-  //   for (Tag tag in Tag.values) {
-  //     if (recipe.tags.contains(tag)) {
-  //       recipeIcons.add(Icon(tag.icon));
-  //     }
-  //   }
-  //   return recipeIcons;
-  // }
 
   // SizedBox recipeHomeHeader(Recipe recipe) {
   //   // Used in homeScreenRecipeTile.
@@ -269,18 +260,16 @@ class RecipeModel extends ChangeNotifier {
       image: AssetImage("assets/food3.png"),
     ),
   ];
-  Set<Tag> filters = {};
-  List<Recipe> get recipes => _allRecipes;
+
+  final Set<Tag> _filters = {};
+  static List<Recipe> get recipes => _allRecipes;
+  Set<Tag> get filters => _filters;
   List<Recipe> get filteredRecipes =>
-      _allRecipes.where((recipe) => recipe.tags.containsAll(filters)).toList();
-
-  void addFilter(Tag filter) {
-    filters.add(filter);
-    notifyListeners();
-  }
-
-  void removeFilter(Tag filter) {
-    filters.remove(filter);
+      _allRecipes.where((recipe) => recipe.tags.containsAll(_filters)).toList();
+  void changeFilter(Tag filter, bool selected) {
+    selected ? 
+    _filters.add(filter) :
+    _filters.remove(filter);
     notifyListeners();
   }
 }
@@ -376,15 +365,8 @@ class RecipeImage extends StatelessWidget {
   }
 }
 
-class FilterButtons extends StatefulWidget {
+class FilterButtons extends StatelessWidget {
   const FilterButtons({super.key});
-
-  @override
-  State<FilterButtons> createState() => _FilterButtonsState();
-}
-
-class _FilterButtonsState extends State<FilterButtons> {
-  // TODO: make _selected change the actual filter in the main build.
 
   @override
   Widget build(BuildContext context) {
@@ -398,9 +380,7 @@ class _FilterButtonsState extends State<FilterButtons> {
                     selected: value.filters.contains(tag),
                     onSelected: (bool selected) {
                       final recipes = context.read<RecipeModel>();
-                      selected
-                          ? recipes.addFilter(tag)
-                          : recipes.removeFilter(tag);
+                      recipes.changeFilter(tag, selected);
                     },
                   );
                 }).toList(),
