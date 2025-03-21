@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'package:flutter/material.dart';
 
 class Recipe {
@@ -8,16 +7,17 @@ class Recipe {
   // Some recipes will use different units for the same item, so converting it to one unit when combining ingredients is important
   Map<String, Amount> ingredients;
   // Acceptable tags include: vegetarian, vegan, pescetarian, saved and favorited,
-  HashSet<Tag> tags;
+  Set<Tag> tags;
   AssetImage image;
 
   Recipe({
     required this.name,
     required this.steps,
     required this.ingredients,
-    HashSet<Tag>? tags,
+    Set<Tag>? tags,
     this.image = const AssetImage("assets/placeholder.avif"),
-  }) : tags = tags ?? HashSet<Tag>.from([]);
+  }) : tags = tags ?? {};
+
 }
 
 class Amount {
@@ -31,15 +31,21 @@ class Amount {
 }
 
 enum Tag {
-  saved(Color.fromRGBO(251, 192, 45, 1), Icons.shopping_cart),
+  carted(Color.fromRGBO(251, 192, 45, 1), Icons.shopping_cart),
   favorited(Color.fromRGBO(229, 57, 53, 1), Icons.favorite),
   vegetarian(Color.fromRGBO(22, 201, 43, 1), Icons.eco),
   vegan(Color.fromRGBO(5, 115, 47, 1), Icons.compost),
   pescetarian(Color.fromRGBO(34, 124, 213, 1), Icons.set_meal);
 
+  static Set<Tag> _specialTags = {Tag.carted, Tag.favorited};
+
   final Color color;
   final IconData icon;
   const Tag(this.color, this.icon);
+  
   static Color get defaultColor => const Color.fromRGBO(158, 158, 158, 1);
-
+  static List<Tag> get getValues =>
+      Tag.values
+          .where((Tag tag) => !_specialTags.contains(tag))
+          .toList();
 }

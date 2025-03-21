@@ -1,32 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:recipe_planner/recipes.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:provider/provider.dart';
+import 'package:recipe_planner/main.dart';
+import 'package:recipe_planner/recipe_model.dart';
 
-class SavedRecipesPage extends StatefulWidget {
-  const SavedRecipesPage({super.key, required this.recipes});
-  final List<Recipe> recipes;
-  @override
-  State<SavedRecipesPage> createState() => _SavedRecipesPageState();
-}
-
-class _SavedRecipesPageState extends State<SavedRecipesPage> {
-  late List<Recipe> savedRecipes =
-      widget.recipes
-          .where(
-            (recipe) =>
-                recipe.tags.contains(Tag.saved) ||
-                recipe.tags.contains(Tag.favorited),
-          )
-          .toList();
+class SavedRecipesPage extends StatelessWidget {
+  const SavedRecipesPage({super.key});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: GridView.builder(
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-        ),
-        itemCount: savedRecipes.length,
-        itemBuilder: (context, index) => Placeholder(),
-      ),
+    return Consumer<RecipeModel>(
+      builder:
+          (context, value, child) => Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: MasonryGridView.builder(
+                gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                ),
+                itemCount: value.favorites.length,
+                itemBuilder: (context, index) {
+                  return RecipeTile(
+                    recipe: value.favorites.toList()[index],
+                    showIcons: false,
+                  );
+                },
+              ),
+            ),
+          ),
     );
   }
 }
