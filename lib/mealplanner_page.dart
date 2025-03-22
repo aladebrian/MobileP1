@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'recipes.dart'; // Importing the Recipe class from recipes.dart
+import 'recipes.dart';
 
 class MealPlannerScreen extends StatefulWidget {
-  final List<Recipe> cartRecipes; // Pass the selected recipes from Home Screen
+  final List<Recipe> cartRecipes;
   const MealPlannerScreen({super.key, required this.cartRecipes});
 
   @override
@@ -10,7 +10,6 @@ class MealPlannerScreen extends StatefulWidget {
 }
 
 class _MealPlannerScreenState extends State<MealPlannerScreen> {
-  // This will store recipes for each day of the week
   Map<String, List<Recipe>> weeklyMeals = {
     'Monday': [],
     'Tuesday': [],
@@ -21,14 +20,12 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
     'Sunday': [],
   };
 
-  // Function to add a recipe to a specific day
   void addRecipeToDay(String day, Recipe recipe) {
     setState(() {
       weeklyMeals[day]?.add(recipe);
     });
   }
 
-  // Function to remove a recipe from a specific day
   void removeRecipeFromDay(String day, Recipe recipe) {
     setState(() {
       weeklyMeals[day]?.remove(recipe);
@@ -43,18 +40,65 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            // Go back to Home Screen when back button is pressed
             Navigator.pop(context);
           },
         ),
       ),
-      body: Column(
+      body: Row(
         children: [
-          // Calendar layout for each day of the week
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Two columns for the days of the week
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: widget.cartRecipes.length,
+              itemBuilder: (context, index) {
+                final recipe = widget.cartRecipes[index];
+                return GestureDetector(
+                  onTap: () {},
+                  child: Draggable<Recipe>(
+                    data: recipe,
+                    feedback: Material(
+                      color: Colors.transparent,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.purpleAccent,
+                        child: Center(
+                          child: Text(
+                            recipe.name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                    childWhenDragging: Container(),
+                    child: Card(
+                      color: Colors.deepPurple,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Image(image: recipe.image),
+                            Text(
+                              recipe.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          Expanded(
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 1,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
@@ -70,78 +114,65 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                       'Saturday',
                       'Sunday',
                     ][index];
-                return GestureDetector(
-                  onTap: () {
-                    // Handle onTap to show more details or open recipe selection menu
+
+                return DragTarget<Recipe>(
+                  onAcceptWithDetails: (recipe) {
+                    addRecipeToDay(day, recipe as Recipe);
                   },
-                  child: DragTarget<Recipe>(
-                    onAcceptWithDetails: (recipe) {
-                      setState(() {
-                        weeklyMeals[day]?.add(
-                          recipe as Recipe,
-                        ); // Add recipe to the respective day
-                      });
-                    },
-                    builder: (context, candidateData, rejectedData) {
-                      return Card(
-                        color: Colors.blueAccent,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                day,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
+                  builder: (context, candidateData, rejectedData) {
+                    return Card(
+                      color: Colors.deepPurple,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              day,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
                               ),
-                              ...weeklyMeals[day]!.map(
-                                (recipe) => Stack(
-                                  children: [
-                                    ListTile(
-                                      title: Text(
-                                        recipe.name,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      leading: Image(
-                                        image: recipe.image,
-                                      ), // Show recipe image
-                                    ),
-                                    Positioned(
-                                      top: 0,
-                                      right: 0,
-                                      child: IconButton(
-                                        icon: const Icon(
-                                          Icons.remove_circle,
-                                          color: Colors.red,
-                                        ),
-                                        onPressed: () {
-                                          removeRecipeFromDay(
-                                            day,
-                                            recipe,
-                                          ); // Remove recipe from the day
-                                        },
+                            ),
+                            ...weeklyMeals[day]!.map(
+                              (recipe) => Stack(
+                                children: [
+                                  ListTile(
+                                    title: Text(
+                                      recipe.name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                    leading: Image(image: recipe.image),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: IconButton(
+                                      icon: const Icon(
+                                        Icons.remove_circle,
+                                        color: Colors.red,
+                                      ),
+                                      onPressed: () {
+                                        removeRecipeFromDay(day, recipe);
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
-                              if (candidateData.isNotEmpty)
-                                const Text(
-                                  "Drop here!",
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                            ],
-                          ),
+                            ),
+                            if (candidateData.isNotEmpty)
+                              const Text(
+                                "Drop here!",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 );
               },
             ),
