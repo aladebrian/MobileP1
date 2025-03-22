@@ -212,21 +212,17 @@ class FilterButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<RecipeModel>(
-      builder:
-          (context, value, child) => Wrap(
-            children:
-                Tag.getValues.map((Tag tag) {
-                  return FilterChip(
-                    label: Text(tag.name),
-                    selected: value.filters.contains(tag),
-                    onSelected:
-                        (bool selected) => context
-                            .read<RecipeModel>()
-                            .changeFilter(tag, selected),
-                  );
-                }).toList(),
-          ),
+    return Wrap(
+      children:
+          Tag.getValues.map((Tag tag) {
+            return FilterChip(
+              label: Text(tag.name),
+              selected: context.read<RecipeModel>().filters.contains(tag),
+              onSelected:
+                  (bool selected) =>
+                      context.read<RecipeModel>().changeFilter(tag, selected),
+            );
+          }).toList(),
     );
   }
 }
