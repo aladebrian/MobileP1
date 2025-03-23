@@ -78,6 +78,31 @@ class RecipeModel extends ChangeNotifier {
     return returnStatement;
   }
 
+  final Map<String, List<Recipe>> _weeklyMeals = {
+    'Monday': [],
+    'Tuesday': [],
+    'Wednesday': [],
+    'Thursday': [],
+    'Friday': [],
+    'Saturday': [],
+    'Sunday': [],
+  };
+
+  // Getter for the weekly meals
+  Map<String, List<Recipe>> get weeklyMeals => _weeklyMeals;
+
+  // Add a recipe to a specific day
+  void addRecipeToDay(String day, Recipe recipe) {
+    _weeklyMeals[day]?.add(recipe);
+    notifyListeners();
+  }
+
+  // Remove a recipe from a specific day
+  void removeRecipeFromDay(String day, Recipe recipe) {
+    _weeklyMeals[day]?.remove(recipe);
+    notifyListeners();
+  }
+
   // Favorites
   final Set<Recipe> _favoriteRecipes = {};
   Set<Recipe> get favorites => _favoriteRecipes;

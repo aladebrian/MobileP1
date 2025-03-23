@@ -38,12 +38,7 @@ class MyHomePage extends StatelessWidget {
   void navigateToMealPlanner(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder:
-            (context) => MealPlannerScreen(
-              cartRecipes: context.read<RecipeModel>().cart.toList(),
-            ),
-      ),
+      MaterialPageRoute(builder: (context) => const MealPlannerScreen()),
     );
   }
 

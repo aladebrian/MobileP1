@@ -1,37 +1,16 @@
 import 'package:flutter/material.dart';
-import 'recipes.dart';
+import 'package:provider/provider.dart';
+import 'package:recipe_planner/recipe_model.dart';
+import 'package:recipe_planner/recipes.dart';
 
 class MealPlannerScreen extends StatefulWidget {
-  final List<Recipe> cartRecipes;
-  const MealPlannerScreen({super.key, required this.cartRecipes});
+  const MealPlannerScreen({super.key});
 
   @override
   State<MealPlannerScreen> createState() => _MealPlannerScreenState();
 }
 
 class _MealPlannerScreenState extends State<MealPlannerScreen> {
-  Map<String, List<Recipe>> weeklyMeals = {
-    'Monday': [],
-    'Tuesday': [],
-    'Wednesday': [],
-    'Thursday': [],
-    'Friday': [],
-    'Saturday': [],
-    'Sunday': [],
-  };
-
-  void addRecipeToDay(String day, Recipe recipe) {
-    setState(() {
-      weeklyMeals[day]?.add(recipe);
-    });
-  }
-
-  void removeRecipeFromDay(String day, Recipe recipe) {
-    setState(() {
-      weeklyMeals[day]?.remove(recipe);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,9 +32,10 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
-              itemCount: widget.cartRecipes.length,
+              itemCount: context.watch<RecipeModel>().cart.length,
               itemBuilder: (context, index) {
-                final recipe = widget.cartRecipes[index];
+                final recipe =
+                    context.watch<RecipeModel>().cart.toList()[index];
                 return GestureDetector(
                   onTap: () {},
                   child: Draggable<Recipe>(
@@ -116,8 +96,11 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                     ][index];
 
                 return DragTarget<Recipe>(
-                  onAcceptWithDetails: (recipe) {
-                    addRecipeToDay(day, recipe as Recipe);
+                  onAcceptWithDetails: (details) {
+                    context.read<RecipeModel>().addRecipeToDay(
+                      day,
+                      details.data,
+                    );
                   },
                   builder: (context, candidateData, rejectedData) {
                     return Card(
@@ -135,32 +118,52 @@ class _MealPlannerScreenState extends State<MealPlannerScreen> {
                                 color: Colors.white,
                               ),
                             ),
-                            ...weeklyMeals[day]!.map(
-                              (recipe) => Stack(
-                                children: [
-                                  ListTile(
-                                    title: Text(
-                                      recipe.name,
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                            Expanded(
+                              child: ListView.builder(
+                                itemCount:
+                                    context
+                                        .watch<RecipeModel>()
+                                        .weeklyMeals[day]
+                                        ?.length ??
+                                    0,
+                                itemBuilder: (context, recipeIndex) {
+                                  final recipe =
+                                      context
+                                          .watch<RecipeModel>()
+                                          .weeklyMeals[day]![recipeIndex];
+                                  return Stack(
+                                    children: [
+                                      ListTile(
+                                        title: Text(
+                                          recipe.name,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        leading: Image(image: recipe.image),
                                       ),
-                                    ),
-                                    leading: Image(image: recipe.image),
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: IconButton(
-                                      icon: const Icon(
-                                        Icons.remove_circle,
-                                        color: Colors.red,
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: IconButton(
+                                          icon: const Icon(
+                                            Icons.remove_circle,
+                                            color: Colors.red,
+                                          ),
+                                          onPressed: () {
+                                            // Call the method from RecipeModel
+                                            context
+                                                .read<RecipeModel>()
+                                                .removeRecipeFromDay(
+                                                  day,
+                                                  recipe,
+                                                );
+                                          },
+                                        ),
                                       ),
-                                      onPressed: () {
-                                        removeRecipeFromDay(day, recipe);
-                                      },
-                                    ),
-                                  ),
-                                ],
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                             if (candidateData.isNotEmpty)
