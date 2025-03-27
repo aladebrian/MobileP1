@@ -90,4 +90,86 @@ class DatabaseHelper {
       return false;
     }
   }
+
+  Future<Set<Recipe>> getCartRecipes() async {
+    final db = await database;
+
+    try {
+      final recipes = await db.query('cart_recipes');
+
+      return recipes.map((recipeMap) {
+        final Map<String, dynamic> decodedMap = jsonDecode(
+          recipeMap['recipe_data'] as String,
+        );
+
+        Map<String, Amount> ingredients = {};
+        (decodedMap['ingredients'] as Map).forEach((key, value) {
+          ingredients[key] = Amount(
+            number: value['number'],
+            unit: value['unit'],
+          );
+        });
+
+        Set<Tag> tags =
+            (decodedMap['tags'] as List)
+                .map(
+                  (tagString) => Tag.values.firstWhere(
+                    (tag) => tag.toString() == tagString,
+                  ),
+                )
+                .toSet();
+
+        return Recipe(
+          name: decodedMap['name'],
+          steps: List<String>.from(decodedMap['steps']),
+          ingredients: ingredients,
+          tags: tags,
+        );
+      }).toSet();
+    } catch (e) {
+      print('Error retrieving cart recipes: $e');
+      return {};
+    }
+  }
+
+  Future<Set<Recipe>> getFavoriteRecipes() async {
+    final db = await database;
+
+    try {
+      final recipes = await db.query('favorite_recipes');
+
+      return recipes.map((recipeMap) {
+        final Map<String, dynamic> decodedMap = jsonDecode(
+          recipeMap['recipe_data'] as String,
+        );
+
+        Map<String, Amount> ingredients = {};
+        (decodedMap['ingredients'] as Map).forEach((key, value) {
+          ingredients[key] = Amount(
+            number: value['number'],
+            unit: value['unit'],
+          );
+        });
+
+        Set<Tag> tags =
+            (decodedMap['tags'] as List)
+                .map(
+                  (tagString) => Tag.values.firstWhere(
+                    (tag) => tag.toString() == tagString,
+                  ),
+                )
+                .toSet();
+
+        return Recipe(
+          name: decodedMap['name'],
+          steps: List<String>.from(decodedMap['steps']),
+          ingredients: ingredients,
+          tags: tags,
+        );
+      }).toSet();
+    } catch (e) {
+      print('Error retrieving favorite recipes: $e');
+      return {};
+    }
+  }
 }
