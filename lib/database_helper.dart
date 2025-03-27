@@ -3,8 +3,8 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:async';
+import 'dart:convert';
 import 'package:recipe_planner/recipes.dart';
-import 'package:flutter/material.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -27,12 +27,41 @@ class DatabaseHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE recipes(
+      CREATE TABLE cart_recipes(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        image TEXT,
-        steps TEXT
+        recipe_data TEXT UNIQUE
       )
     ''');
+    await db.execute('''
+      CREATE TABLE favorite_recipes(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipe_data TEXT UNIQUE
+      )
+    ''');
+  }
+
+  Future<bool> addToCart(Recipe recipe) async {
+    final db = await database;
+
+    try {
+      String recipeJson = jsonEncode({
+        'name': recipe.name,
+        'steps': recipe.steps,
+        'ingredients': recipe.ingredients.map(
+          (key, value) =>
+              MapEntry(key, {'number': value.number, 'unit': value.unit}),
+        ),
+        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
+        'image': recipe.image?.toString(),
+      });
+
+      await db.insert('cart_recipes', {
+        'recipe_data': recipeJson,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      return true;
+    } catch (e) {
+      print('Error adding to cart: $e');
+      return false;
+    }
   }
 }
