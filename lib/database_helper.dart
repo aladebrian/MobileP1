@@ -52,7 +52,7 @@ class DatabaseHelper {
               MapEntry(key, {'number': value.number, 'unit': value.unit}),
         ),
         'tags': recipe.tags.map((tag) => tag.toString()).toList(),
-        'image': recipe.image?.toString(),
+        'image': recipe.image.toString(),
       });
 
       await db.insert('cart_recipes', {
@@ -61,6 +61,32 @@ class DatabaseHelper {
       return true;
     } catch (e) {
       print('Error adding to cart: $e');
+      return false;
+    }
+  }
+
+  Future<bool> addToFavorites(Recipe recipe) async {
+    final db = await database;
+
+    try {
+      String recipeJson = jsonEncode({
+        'name': recipe.name,
+        'steps': recipe.steps,
+        'ingredients': recipe.ingredients.map(
+          (key, value) =>
+              MapEntry(key, {'number': value.number, 'unit': value.unit}),
+        ),
+        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
+        'image': recipe.image.toString(),
+      });
+
+      await db.insert('favorite_recipes', {
+        'recipe_data': recipeJson,
+      }, conflictAlgorithm: ConflictAlgorithm.ignore);
+      return true;
+    } catch (e) {
+      // ignore_for_file: avoid_print
+      print('Error adding to favorites: $e');
       return false;
     }
   }
