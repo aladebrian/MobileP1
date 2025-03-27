@@ -66,16 +66,12 @@ class RecipeModel extends ChangeNotifier {
   final Set<Recipe> _cartRecipes = {};
   Set<Recipe> get cart => _cartRecipes;
 
-  bool addToCart(Recipe recipe) {
-    // Returns true if successfully added to cart. returns false if not (already in cart)
-    // the boolean statemetn is for the popup that appears when the item is added to cart or not
-    bool returnStatement = false;
-    if (!_cartRecipes.contains(recipe)) {
-      _cartRecipes.add(recipe);
-      returnStatement = true;
-      notifyListeners();
-    }
-    return returnStatement;
+  void addToCart(Recipe recipe) {
+    _cartRecipes.contains(recipe)
+        ? _cartRecipes.remove(recipe)
+        : _cartRecipes.add(recipe);
+
+    notifyListeners();
   }
 
   final Map<String, List<Recipe>> _weeklyMeals = {
