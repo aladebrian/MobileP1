@@ -31,11 +31,18 @@ class RecipeModel extends ChangeNotifier {
       image: AssetImage("assets/food2.webp"),
     ),
     Recipe(
-      name: "Recipe 3",
-      steps: ["do this again", 'then this', 'unfortunately this'],
+      name: "Grilled Shrimp",
+      steps: [
+        "Mix the creole seasoning in with the shrimp",
+        'Put the butter into a hot pan',
+        'Once butter has melted, drop seasoning shrimp into the hot pan',
+        'Let the shrimp cook for 5-7 minutes while flippig it on both sides',
+        'Remove shrimp from pan and place on a plate',
+      ],
       ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
+        "Shrimp": Amount(number: 1, unit: 'pound'),
+        'Creole Seasoning': Amount(number: 2, unit: 'tablespoons'),
+        'Butter': Amount(number: 2, unit: 'tablespoons'),
       },
       tags: {Tag.pescetarian},
     ),
