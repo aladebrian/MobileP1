@@ -24,14 +24,41 @@ class DatabaseHelper {
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-       CREATE TABLE recipes(
-         id INTEGER PRIMARY KEY AUTOINCREMENT,
-         name TEXT,
-         image TEXT,
-         steps TEXT,
-         ingredients TEXT,
-         tags TEXT
-       )
-     ''');
+      CREATE TABLE recipes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        image TEXT
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE steps (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipe_id INTEGER NOT NULL,
+        step_number INTEGER NOT NULL,
+        description TEXT NOT NULL,
+        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE ingredients (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipe_id INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE tags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        recipe_id INTEGER NOT NULL,
+        tag TEXT NOT NULL,
+        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+      )
+    ''');
   }
 }
