@@ -43,6 +43,14 @@ class Ingredient {
         ? -1
         : (value * unit.ratio) / finalUnit.ratio;
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is Ingredient && name == other.name;
+  }
+
+  @override
+  int get hashCode => name.hashCode;
 }
 // [1, 2, 4, 8]
 // TODO add solid units ounces and pounds

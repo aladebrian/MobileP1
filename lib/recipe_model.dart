@@ -13,8 +13,16 @@ class RecipeModel extends ChangeNotifier {
       ],
       ingredients: {
         Ingredient(name: "Slices of Sandwich Bread", value: 2),
-        Ingredient(name: "Peanut Butter", value: 2, unit: IngredientUnit.tablespoon),
-        Ingredient(name: "Grape Jelly", value: 2, unit: IngredientUnit.teaspoon),
+        Ingredient(
+          name: "Peanut Butter",
+          value: 2,
+          unit: IngredientUnit.tablespoon,
+        ),
+        Ingredient(
+          name: "Grape Jelly",
+          value: 2,
+          unit: IngredientUnit.teaspoon,
+        ),
       },
       tags: {Tag.vegan, Tag.vegetarian},
       image: AssetImage("assets/food.avif"),
@@ -35,9 +43,21 @@ class RecipeModel extends ChangeNotifier {
         Ingredient(name: "Butter", value: 1 / 2, unit: IngredientUnit.cup),
         Ingredient(name: "Garlic", value: 2, unit: IngredientUnit.tablespoon),
         Ingredient(name: "Mushrooms", value: 16, unit: IngredientUnit.ounce),
-        Ingredient(name: "Heavy Whipping Cream", value: 1, unit: IngredientUnit.cup),
-        Ingredient(name: "Fettucine Pasta", value: 1, unit: IngredientUnit.pound),
-        Ingredient(name: "Parmesan Cheese", value: 1 / 2, unit: IngredientUnit.cup),
+        Ingredient(
+          name: "Heavy Whipping Cream",
+          value: 1,
+          unit: IngredientUnit.cup,
+        ),
+        Ingredient(
+          name: "Fettucine Pasta",
+          value: 1,
+          unit: IngredientUnit.pound,
+        ),
+        Ingredient(
+          name: "Parmesan Cheese",
+          value: 1 / 2,
+          unit: IngredientUnit.cup,
+        ),
         Ingredient(name: "Salt", value: 1, unit: IngredientUnit.teaspoon),
       },
       tags: {Tag.vegetarian},
@@ -54,19 +74,26 @@ class RecipeModel extends ChangeNotifier {
       ],
       ingredients: {
         Ingredient(name: "Shrimp", value: 1, unit: IngredientUnit.pound),
-        Ingredient(name: "Creole Seasoning", value: 2, unit: IngredientUnit.tablespoon),
+        Ingredient(
+          name: "Creole Seasoning",
+          value: 2,
+          unit: IngredientUnit.tablespoon,
+        ),
         Ingredient(name: "Butter", value: 2, unit: IngredientUnit.tablespoon),
       },
       tags: {Tag.pescetarian},
       image: AssetImage("assets/food.avif"),
     ),
     Recipe(
-      name:
-          "Recipe 4",
+      name: "Recipe 4",
       steps: ["do this again", 'then this', 'unfortunately this'],
       ingredients: {
         Ingredient(name: "a lot of this", value: 20, unit: IngredientUnit.cup),
-        Ingredient(name: "a little bit of that", value: 10, unit: IngredientUnit.cup)
+        Ingredient(
+          name: "a little bit of that",
+          value: 10,
+          unit: IngredientUnit.cup,
+        ),
       },
       tags: {Tag.vegetarian},
       image: AssetImage("assets/food3.png"),
@@ -116,12 +143,14 @@ class RecipeModel extends ChangeNotifier {
   // Add a recipe to a specific day
   void addRecipeToDay(String day, Recipe recipe) {
     _weeklyMeals[day]?.add(recipe);
+    solveGroceries();
     notifyListeners();
   }
 
   // Remove a recipe from a specific day
   void removeRecipeFromDay(String day, Recipe recipe) {
     _weeklyMeals[day]?.remove(recipe);
+    solveGroceries();
     notifyListeners();
   }
 
@@ -141,5 +170,28 @@ class RecipeModel extends ChangeNotifier {
     final Set<Recipe> set;
     tag == Tag.favorited ? set = _favoriteRecipes : set = _cartRecipes;
     return set.contains(recipe) ? tag.color : Tag.defaultColor;
+  }
+
+  //
+  // Change the hashcode and equals operator for ingredients
+  // to match the ingredient name instead of the object
+  final Set<Ingredient> _groceries = {};
+  List<Ingredient> get groceries {
+    return _groceries.toList();
+  }
+
+  void solveGroceries() {
+    if (_groceries.isNotEmpty) {
+      return;
+    }
+    _weeklyMeals.forEach((String day, List<Recipe> currRecipes) {
+      for (Recipe recipe in currRecipes) {
+        for (Ingredient ingredient in recipe.ingredients) {
+          if (!_groceries.contains(ingredient)) {
+            _groceries.add(ingredient);
+          }
+        }
+      }
+    });
   }
 }
