@@ -8,8 +8,8 @@ class RecipeModel extends ChangeNotifier {
       name: "Recipe 1",
       steps: ["do this", 'then this', 'finally this'],
       ingredients: {
-        "a little bit of this": Amount(number: 1, unit: 'quart'),
-        'a little bit of that': Amount(number: 0.5),
+        Ingredient(name: "a little bit of this", value: 1, unit: IngredientUnit.quart),
+        Ingredient(name: "a little bit of that", value: 0.5),
       },
       tags: {Tag.vegan, Tag.vegetarian},
       image: AssetImage("assets/food.avif"),
@@ -19,29 +19,31 @@ class RecipeModel extends ChangeNotifier {
           "Recipe 2 this is an extremely long recipe name unfortunately, its quite weird how long this is",
       steps: ["do this again", 'then this', 'unfortunately this'],
       ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
+        Ingredient(name: "a lot of this", value: 20, unit: IngredientUnit.cup),
+        Ingredient(name: "a little bit of that", value: 10, unit: IngredientUnit.cup)
       },
       tags: {Tag.vegetarian},
       image: AssetImage("assets/food2.webp"),
     ),
     Recipe(
       name: "Recipe 3",
-      steps: ["do this again", 'then this', 'unfortunately this'],
+      steps: ["do this", 'then this', 'unfortunately this'],
       ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
+        Ingredient(name: "a little bit of this", value: 1, unit: IngredientUnit.quart),
+        Ingredient(name: "a little bit of that", value: 0.5),
       },
       tags: {Tag.pescetarian},
+      image: AssetImage("assets/food.avif"),
     ),
     Recipe(
-      name: "Recipe 4",
+      name:
+          "Recipe 4",
       steps: ["do this again", 'then this', 'unfortunately this'],
       ingredients: {
-        "a lot of this": Amount(number: 20, unit: 'cups'),
-        'a little bit of that': Amount(number: 5),
+        Ingredient(name: "a lot of this", value: 20, unit: IngredientUnit.cup),
+        Ingredient(name: "a little bit of that", value: 10, unit: IngredientUnit.cup)
       },
-      tags: {},
+      tags: {Tag.vegetarian},
       image: AssetImage("assets/food3.png"),
     ),
   ];
