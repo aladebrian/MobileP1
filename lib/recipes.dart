@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
+
 class Recipe {
   final int? id;
   String name;
@@ -19,44 +20,6 @@ class Recipe {
     Set<Tag>? tags,
     this.image = const AssetImage("assets/placeholder.avif"),
   }) : tags = tags ?? {};
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'steps': steps,
-      'ingredients': ingredients.map(
-        (key, value) =>
-            MapEntry(key, {'number': value.number, 'unit': value.unit}),
-      ),
-      'tags': tags.map((tag) => tag.toString()).toList(),
-      'image': image.toString(),
-    };
-  }
-
-  factory Recipe.fromJson(Map<String, dynamic> json) {
-    Map<String, Amount> ingredients = {};
-    (json['ingredients'] as Map).forEach((key, value) {
-      ingredients[key] = Amount(number: value['number'], unit: value['unit']);
-    });
-
-    Set<Tag> tags =
-        (json['tags'] as List)
-            .map(
-              (tagString) =>
-                  Tag.values.firstWhere((tag) => tag.toString() == tagString),
-            )
-            .toSet();
-
-    return Recipe(
-      id: json['id'],
-      name: json['name'],
-      steps: List<String>.from(json['steps']),
-      ingredients: ingredients,
-      tags: tags,
-      image: AssetImage(json['image']),
-    );
-  }
 }
 
 class Ingredient {
@@ -74,11 +37,15 @@ class Ingredient {
   // Liquid includes powder measurements.
   @override
   String toString() => name;
+  // The ternary ensures that only liquid units can be converted to liquid units, and solid to solid
   double convert(IngredientUnit finalUnit) {
-    return (value * unit.ratio) / finalUnit.ratio; 
+    return unit.isSolid() != finalUnit.isSolid()
+        ? -1
+        : (value * unit.ratio) / finalUnit.ratio;
   }
 }
 // [1, 2, 4, 8]
+// TODO add solid units ounces and pounds
 
 enum IngredientUnit {
   teaspoon(1),
@@ -88,7 +55,13 @@ enum IngredientUnit {
   pint(96),
   quart(192),
   gallon(768),
-  whole(-1);
+  whole(-1),
+
+  ounce(1),
+  pound(16);
+
+  static List<IngredientUnit> get solidUnits => [ounce, pound];
+  bool isSolid() => solidUnits.contains(this);
   final int ratio;
   const IngredientUnit(this.ratio);
   // to convert units, multiply by the ratio and divide by the next number
