@@ -19,6 +19,7 @@ class Recipe {
     Set<Tag>? tags,
     this.image = const AssetImage("assets/placeholder.avif"),
   }) : tags = tags ?? {};
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
