@@ -143,14 +143,14 @@ class RecipeModel extends ChangeNotifier {
   // Add a recipe to a specific day
   void addRecipeToDay(String day, Recipe recipe) {
     _weeklyMeals[day]?.add(recipe);
-    solveGroceries();
+    addRecipeToGroceries(recipe);
     notifyListeners();
   }
 
   // Remove a recipe from a specific day
   void removeRecipeFromDay(String day, Recipe recipe) {
     _weeklyMeals[day]?.remove(recipe);
-    solveGroceries();
+    removeRecipeFromGroceries(recipe);
     notifyListeners();
   }
 
@@ -175,23 +175,24 @@ class RecipeModel extends ChangeNotifier {
   //
   // Change the hashcode and equals operator for ingredients
   // to match the ingredient name instead of the object
-  final Set<Ingredient> _groceries = {};
-  List<Ingredient> get groceries {
-    return _groceries.toList();
+  final Map<String, Ingredient> _groceries = {};
+  List<dynamic> get groceries => _groceries.values.toList();
+
+  void addRecipeToGroceries(Recipe recipe) {
+    for (Ingredient ingredient in recipe.ingredients) {
+      if (_groceries.containsKey(ingredient.name)) {
+        _groceries[ingredient.name] = _groceries[ingredient.name]! + ingredient;
+      } else {
+        _groceries[ingredient.name] = ingredient;
+      }
+    }
+    notifyListeners();
   }
 
-  void solveGroceries() {
-    if (_groceries.isNotEmpty) {
-      return;
+  void removeRecipeFromGroceries(Recipe recipe) {
+    for (Ingredient ingredient in recipe.ingredients) {
+      _groceries[ingredient.name] = _groceries[ingredient.name]! - ingredient;
     }
-    _weeklyMeals.forEach((String day, List<Recipe> currRecipes) {
-      for (Recipe recipe in currRecipes) {
-        for (Ingredient ingredient in recipe.ingredients) {
-          if (!_groceries.contains(ingredient)) {
-            _groceries.add(ingredient);
-          }
-        }
-      }
-    });
+    notifyListeners();
   }
 }

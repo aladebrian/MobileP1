@@ -182,7 +182,6 @@ class DayTile extends StatelessWidget {
         );
       },
     );
-    ;
   }
 }
 
@@ -195,14 +194,12 @@ class GroceryListScreen extends StatelessWidget {
       appBar: AppBar(),
       body: Column(
         children: [
-          Text("Hellooo"),
-          Text("Hellooo"),
+          Text("Groceries"),
           ...context.read<RecipeModel>().groceries.map(
             (ingredient) => Text(
               "${ingredient.name} ${ingredient.value} ${ingredient.unit}",
             ),
           ),
-          Text("Hi"),
         ],
       ),
     );

@@ -33,10 +33,9 @@ class Ingredient {
     this.unit = IngredientUnit.whole,
   });
 
-  // TODO: Methods for conversion between units (tsp, -> tbsp, cup, pint, quart, gallon,)
-  // Liquid includes powder measurements.
   @override
   String toString() => name;
+
   // The ternary ensures that only liquid units can be converted to liquid units, and solid to solid
   double convert(IngredientUnit finalUnit) {
     return unit.isSolid() != finalUnit.isSolid()
@@ -44,13 +43,15 @@ class Ingredient {
         : (value * unit.ratio) / finalUnit.ratio;
   }
 
-  @override
-  bool operator ==(Object other) {
-    return other is Ingredient && name == other.name;
+  Ingredient operator +(Ingredient other) {
+    double otherValue = other.convert(unit);
+    return Ingredient(name: name, value: value + otherValue, unit: unit);
   }
 
-  @override
-  int get hashCode => name.hashCode;
+  Ingredient operator -(Ingredient other) {
+    double otherValue = other.convert(unit);
+    return Ingredient(name: name, value: value - otherValue, unit: unit);
+  }
 }
 // [1, 2, 4, 8]
 // TODO add solid units ounces and pounds
@@ -69,7 +70,19 @@ enum IngredientUnit {
   pound(16);
 
   static List<IngredientUnit> get solidUnits => [ounce, pound];
+  static List<IngredientUnit> get liquidUnits => [
+    teaspoon,
+    tablespoon,
+    fluidOunce,
+    cup,
+    pint,
+    quart,
+    gallon,
+    whole,
+  ];
   bool isSolid() => solidUnits.contains(this);
+  @override
+  String toString() => name;
   final int ratio;
   const IngredientUnit(this.ratio);
   // to convert units, multiply by the ratio and divide by the next number
