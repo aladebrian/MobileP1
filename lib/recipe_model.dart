@@ -5,11 +5,16 @@ class RecipeModel extends ChangeNotifier {
   // Recipes
   static final List<Recipe> _allRecipes = [
     Recipe(
-      name: "Recipe 1",
-      steps: ["do this", 'then this', 'finally this'],
+      name: "PB & J",
+      steps: [
+        "Spread the peanut butter on one piece of bread",
+        'Spread the jelly on the other side',
+        'Put the two pieces of bread together to form a sandwich',
+      ],
       ingredients: {
-        "a little bit of this": Amount(number: 1, unit: 'quart'),
-        'a little bit of that': Amount(number: 0.5),
+        "Slices of Sandwich Bread": Amount(number: 2),
+        'Peanut Butter': Amount(number: 2, unit: 'tablespoons'),
+        'Grape Jelly': Amount(number: 2, unit: 'teaspoons'),
       },
       tags: {Tag.vegan, Tag.vegetarian},
       image: AssetImage("assets/food.avif"),
