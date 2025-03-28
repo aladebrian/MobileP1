@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:decimal/decimal.dart';
 class Recipe {
+  final int? id;
   String name;
   List<String> steps;
   // Ingredient was created for easy conversion between units.
@@ -11,12 +12,51 @@ class Recipe {
   AssetImage image;
 
   Recipe({
+    this.id,
     required this.name,
     required this.steps,
     required this.ingredients,
     Set<Tag>? tags,
     this.image = const AssetImage("assets/placeholder.avif"),
   }) : tags = tags ?? {};
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'steps': steps,
+      'ingredients': ingredients.map(
+        (key, value) =>
+            MapEntry(key, {'number': value.number, 'unit': value.unit}),
+      ),
+      'tags': tags.map((tag) => tag.toString()).toList(),
+      'image': image.toString(),
+    };
+  }
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    Map<String, Amount> ingredients = {};
+    (json['ingredients'] as Map).forEach((key, value) {
+      ingredients[key] = Amount(number: value['number'], unit: value['unit']);
+    });
+
+    Set<Tag> tags =
+        (json['tags'] as List)
+            .map(
+              (tagString) =>
+                  Tag.values.firstWhere((tag) => tag.toString() == tagString),
+            )
+            .toSet();
+
+    return Recipe(
+      id: json['id'],
+      name: json['name'],
+      steps: List<String>.from(json['steps']),
+      ingredients: ingredients,
+      tags: tags,
+      image: AssetImage(json['image']),
+    );
+  }
 }
 
 class Ingredient {

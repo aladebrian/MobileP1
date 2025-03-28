@@ -5,22 +5,44 @@ class RecipeModel extends ChangeNotifier {
   // Recipes
   static final List<Recipe> _allRecipes = [
     Recipe(
-      name: "Recipe 1",
-      steps: ["do this", 'then this', 'finally this'],
+      name: "PB & J",
+      steps: [
+        "Spread the peanut butter on one piece of bread",
+        'Spread the jelly on the other side',
+        'Put the two pieces of bread together to form a sandwich',
+      ],
       ingredients: {
         Ingredient(name: "a little bit of this", value: 1, unit: IngredientUnit.quart),
         Ingredient(name: "a little bit of that", value: 0.5),
+        "Slices of Sandwich Bread": Amount(number: 2),
+        'Peanut Butter': Amount(number: 2, unit: 'tablespoons'),
+        'Grape Jelly': Amount(number: 2, unit: 'teaspoons'),
       },
       tags: {Tag.vegan, Tag.vegetarian},
       image: AssetImage("assets/food.avif"),
     ),
     Recipe(
-      name:
-          "Recipe 2 this is an extremely long recipe name unfortunately, its quite weird how long this is",
-      steps: ["do this again", 'then this', 'unfortunately this'],
+      name: "Mushroom Alfredo Pasta",
+      steps: [
+        "Add the garlic and mushrooms to a large pan with the butter",
+        'Sauté the mushrooms for about 10-15 minutes',
+        'Add the cream and simmer over a low heat',
+        'Cook the fettucine in a large pot according to the package directions',
+        'Drain it and then the pasta to the pan',
+        'Add mushroom sauce to the hot fettuccine and mix it',
+        'Add parmesan cheese and season with salt',
+        'Now serve it on a plate and enjoy!',
+      ],
       ingredients: {
         Ingredient(name: "a lot of this", value: 20, unit: IngredientUnit.cup),
         Ingredient(name: "a little bit of that", value: 10, unit: IngredientUnit.cup)
+        "Butter": Amount(number: 1 / 2, unit: 'cups'),
+        'Garlic': Amount(number: 2, unit: 'tablespoons'),
+        'Mushrooms': Amount(number: 16, unit: 'ounces'),
+        'Heavy Whipping Cream': Amount(number: 1, unit: 'cup'),
+        'Fettucine Pasta': Amount(number: 1, unit: 'pound'),
+        'Parmesan Cheese': Amount(number: 1 / 2, unit: 'cup'),
+        'Salt': Amount(number: 1, unit: 'teaspoons'),
       },
       tags: {Tag.vegetarian},
       image: AssetImage("assets/food2.webp"),
@@ -31,6 +53,18 @@ class RecipeModel extends ChangeNotifier {
       ingredients: {
         Ingredient(name: "a little bit of this", value: 1, unit: IngredientUnit.quart),
         Ingredient(name: "a little bit of that", value: 0.5),
+      name: "Grilled Shrimp",
+      steps: [
+        "Mix the creole seasoning in with the shrimp",
+        'Put the butter into a hot pan',
+        'Once butter has melted, drop seasoning shrimp into the hot pan',
+        'Let the shrimp cook for 5-7 minutes while flippig it on both sides',
+        'Remove shrimp from pan and place on a plate',
+      ],
+      ingredients: {
+        "Shrimp": Amount(number: 1, unit: 'pound'),
+        'Creole Seasoning': Amount(number: 2, unit: 'tablespoons'),
+        'Butter': Amount(number: 2, unit: 'tablespoons'),
       },
       tags: {Tag.pescetarian},
       image: AssetImage("assets/food.avif"),
@@ -68,16 +102,11 @@ class RecipeModel extends ChangeNotifier {
   final Set<Recipe> _cartRecipes = {};
   Set<Recipe> get cart => _cartRecipes;
 
-  bool addToCart(Recipe recipe) {
-    // Returns true if successfully added to cart. returns false if not (already in cart)
-    // the boolean statemetn is for the popup that appears when the item is added to cart or not
-    bool returnStatement = false;
-    if (!_cartRecipes.contains(recipe)) {
-      _cartRecipes.add(recipe);
-      returnStatement = true;
-      notifyListeners();
-    }
-    return returnStatement;
+  void addToCart(Recipe recipe) {
+    _cartRecipes.contains(recipe)
+        ? _cartRecipes.remove(recipe)
+        : _cartRecipes.add(recipe);
+    notifyListeners();
   }
 
   final Map<String, List<Recipe>> _weeklyMeals = {
