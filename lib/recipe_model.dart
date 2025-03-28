@@ -13,8 +13,16 @@ class RecipeModel extends ChangeNotifier {
       ],
       ingredients: {
         Ingredient(name: "Slices of Sandwich Bread", value: 2),
-        Ingredient(name: "Peanut Butter", value: 2, unit: IngredientUnit.tablespoon),
-        Ingredient(name: "Grape Jelly", value: 2, unit: IngredientUnit.teaspoon),
+        Ingredient(
+          name: "Peanut Butter",
+          value: 2,
+          unit: IngredientUnit.tablespoon,
+        ),
+        Ingredient(
+          name: "Grape Jelly",
+          value: 2,
+          unit: IngredientUnit.teaspoon,
+        ),
       },
       tags: {Tag.vegan, Tag.vegetarian},
       image: AssetImage("assets/food.avif"),
@@ -35,9 +43,21 @@ class RecipeModel extends ChangeNotifier {
         Ingredient(name: "Butter", value: 1 / 2, unit: IngredientUnit.cup),
         Ingredient(name: "Garlic", value: 2, unit: IngredientUnit.tablespoon),
         Ingredient(name: "Mushrooms", value: 16, unit: IngredientUnit.ounce),
-        Ingredient(name: "Heavy Whipping Cream", value: 1, unit: IngredientUnit.cup),
-        Ingredient(name: "Fettucine Pasta", value: 1, unit: IngredientUnit.pound),
-        Ingredient(name: "Parmesan Cheese", value: 1 / 2, unit: IngredientUnit.cup),
+        Ingredient(
+          name: "Heavy Whipping Cream",
+          value: 1,
+          unit: IngredientUnit.cup,
+        ),
+        Ingredient(
+          name: "Fettucine Pasta",
+          value: 1,
+          unit: IngredientUnit.pound,
+        ),
+        Ingredient(
+          name: "Parmesan Cheese",
+          value: 1 / 2,
+          unit: IngredientUnit.cup,
+        ),
         Ingredient(name: "Salt", value: 1, unit: IngredientUnit.teaspoon),
       },
       tags: {Tag.vegetarian},
@@ -54,21 +74,52 @@ class RecipeModel extends ChangeNotifier {
       ],
       ingredients: {
         Ingredient(name: "Shrimp", value: 1, unit: IngredientUnit.pound),
-        Ingredient(name: "Creole Seasoning", value: 2, unit: IngredientUnit.tablespoon),
+        Ingredient(
+          name: "Creole Seasoning",
+          value: 2,
+          unit: IngredientUnit.tablespoon,
+        ),
         Ingredient(name: "Butter", value: 2, unit: IngredientUnit.tablespoon),
       },
       tags: {Tag.pescetarian},
       image: AssetImage("assets/food.avif"),
     ),
     Recipe(
-      name:
-          "Recipe 4",
-      steps: ["do this again", 'then this', 'unfortunately this'],
+      name: "One Pot Salmon and Rice",
+      steps: [
+        "Season the salmon with salt, pepper and paprika",
+        'In a medium pot, add in oil and pan fry the salmon for 2 min on each side, or until crust forms.'
+            'Remove and set aside.',
+        'In the same pan, add in butter and butter. Saute for 2-3 min.',
+        'Add in the rice, mix well making sure the rice soaks up all the oil.',
+        'Pour in the vegetable stock',
+        'Add back in the salmon, place it on top of the rice.',
+        'Once simmering, put the lid on. Cover and cook on low heat for 18-20 min. Keep an eye out to prevent burning.',
+        'Turn the heat off and let it sit for another 5 min with the lid on and enjoy!',
+      ],
       ingredients: {
-        Ingredient(name: "a lot of this", value: 20, unit: IngredientUnit.cup),
-        Ingredient(name: "a little bit of that", value: 10, unit: IngredientUnit.cup)
+        Ingredient(
+          name: "Salmon Fillet",
+          value: 16,
+          unit: IngredientUnit.ounce,
+        ),
+        Ingredient(name: "Mushroom", value: 1, unit: IngredientUnit.cup),
+        Ingredient(name: "Rice", value: 2, unit: IngredientUnit.cup),
+        Ingredient(
+          name: "Vegetable Stock",
+          value: 2.5,
+          unit: IngredientUnit.cup,
+        ),
+        Ingredient(name: "Butter", value: 2, unit: IngredientUnit.tablespoon),
+        Ingredient(name: "Salt", value: 1, unit: IngredientUnit.teaspoon),
+        Ingredient(name: "Pepper", value: 1, unit: IngredientUnit.teaspoon),
+        Ingredient(
+          name: "Paprika",
+          value: 0.5,
+          unit: IngredientUnit.tablespoon,
+        ),
       },
-      tags: {Tag.vegetarian},
+      tags: {Tag.pescetarian},
       image: AssetImage("assets/food3.png"),
     ),
   ];
