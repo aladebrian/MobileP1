@@ -177,21 +177,10 @@ class DatabaseHelper {
     final db = await database;
 
     try {
-      String recipeJson = jsonEncode({
-        'name': recipe.name,
-        'steps': recipe.steps,
-        'ingredients': recipe.ingredients.map(
-          (key, value) =>
-              MapEntry(key, {'number': value.number, 'unit': value.unit}),
-        ),
-        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
-        'image': recipe.image.toString(),
-      });
-
       int deletedCount = await db.delete(
         'cart_recipes',
-        where: 'recipe_data = ?',
-        whereArgs: [recipeJson],
+        where: 'id = ?',
+        whereArgs: [recipe.id],
       );
 
       return deletedCount > 0;
@@ -205,21 +194,10 @@ class DatabaseHelper {
     final db = await database;
 
     try {
-      String recipeJson = jsonEncode({
-        'name': recipe.name,
-        'steps': recipe.steps,
-        'ingredients': recipe.ingredients.map(
-          (key, value) =>
-              MapEntry(key, {'number': value.number, 'unit': value.unit}),
-        ),
-        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
-        'image': recipe.image.toString(),
-      });
-
       int deletedCount = await db.delete(
         'favorite_recipes',
-        where: 'recipe_data = ?',
-        whereArgs: [recipeJson],
+        where: 'id = ?',
+        whereArgs: [recipe.id],
       );
 
       return deletedCount > 0;
