@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recipe_planner/recipes.dart';
-import 'database_helper.dart';
 
 class RecipeModel extends ChangeNotifier {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
   // Recipes
   static final List<Recipe> _allRecipes = [
     Recipe(
@@ -68,14 +66,10 @@ class RecipeModel extends ChangeNotifier {
   final Set<Recipe> _cartRecipes = {};
   Set<Recipe> get cart => _cartRecipes;
 
-  void addToCart(Recipe recipe) async {
-    if (_cartRecipes.contains(recipe)) {
-      _cartRecipes.remove(recipe);
-      await _dbHelper.deleteFromCart(recipe);
-    } else {
-      _cartRecipes.add(recipe);
-      await _dbHelper.addToCart(recipe);
-    }
+  void addToCart(Recipe recipe) {
+    _cartRecipes.contains(recipe)
+        ? _cartRecipes.remove(recipe)
+        : _cartRecipes.add(recipe);
     notifyListeners();
   }
 
@@ -108,23 +102,10 @@ class RecipeModel extends ChangeNotifier {
   final Set<Recipe> _favoriteRecipes = {};
   Set<Recipe> get favorites => _favoriteRecipes;
 
-  void favoriteRecipe(Recipe recipe) async {
-    if (_favoriteRecipes.contains(recipe)) {
-      _favoriteRecipes.remove(recipe);
-      await _dbHelper.deleteFromFavorites(recipe); // Remove from DB
-    } else {
-      _favoriteRecipes.add(recipe);
-      await _dbHelper.addToFavorites(recipe); // Add to DB
-    }
-    notifyListeners();
-  }
-
-  void loadSavedRecipes() async {
-    Set<Recipe> savedCart = await _dbHelper.getCartRecipes();
-    Set<Recipe> savedFavorites = await _dbHelper.getFavoriteRecipes();
-
-    _cartRecipes.addAll(savedCart);
-    _favoriteRecipes.addAll(savedFavorites);
+  void favoriteRecipe(Recipe recipe) {
+    _favoriteRecipes.contains(recipe)
+        ? _favoriteRecipes.remove(recipe)
+        : _favoriteRecipes.add(recipe);
 
     notifyListeners();
   }

@@ -1,17 +1,16 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'dart:async';
-import 'dart:convert';
 import 'package:recipe_planner/recipes.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
-  factory DatabaseHelper() => _instance;
-  DatabaseHelper._internal();
-
   static Database? _database;
+
+  factory DatabaseHelper() {
+    return _instance;
+  }
+
+  DatabaseHelper._internal();
 
   Future<Database> get database async {
     if (_database != null) return _database!;
@@ -20,190 +19,101 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'recipe_planner.db');
+    String path = join(await getDatabasesPath(), 'recipe_planner.db');
     return await openDatabase(path, version: 1, onCreate: _onCreate);
   }
 
-  Future _onCreate(Database db, int version) async {
+  Future<void> _onCreate(Database db, int version) async {
+    // Create recipes table
     await db.execute('''
-      CREATE TABLE cart_recipes(
+      CREATE TABLE recipes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        recipe_data TEXT UNIQUE
+        name TEXT,
+        steps TEXT,
+        ingredients TEXT,
+        tags TEXT,
+        imagePath TEXT
       )
     ''');
-    await db.execute('''
-      CREATE TABLE favorite_recipes(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        recipe_data TEXT UNIQUE
-      )
-    ''');
   }
 
-  Future<bool> addToCart(Recipe recipe) async {
+  Future<int> insertRecipe(Recipe recipe) async {
     final db = await database;
-
-    try {
-      String recipeJson = jsonEncode({
-        'name': recipe.name,
-        'steps': recipe.steps,
-        'ingredients': recipe.ingredients.map(
-          (key, value) =>
-              MapEntry(key, {'number': value.number, 'unit': value.unit}),
-        ),
-        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
-        'image': recipe.image.toString(),
-      });
-
-      await db.insert('cart_recipes', {
-        'recipe_data': recipeJson,
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
-      return true;
-    } catch (e) {
-      print('Error adding to cart: $e');
-      return false;
-    }
+    return await db.insert(
+      'recipes',
+      _recipeToMap(recipe),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
-  Future<bool> addToFavorites(Recipe recipe) async {
+  Future<List<Recipe>> getAllRecipes() async {
     final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query('recipes');
 
-    try {
-      String recipeJson = jsonEncode({
-        'name': recipe.name,
-        'steps': recipe.steps,
-        'ingredients': recipe.ingredients.map(
-          (key, value) =>
-              MapEntry(key, {'number': value.number, 'unit': value.unit}),
-        ),
-        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
-        'image': recipe.image.toString(),
-      });
-
-      await db.insert('favorite_recipes', {
-        'recipe_data': recipeJson,
-      }, conflictAlgorithm: ConflictAlgorithm.ignore);
-      return true;
-    } catch (e) {
-      // ignore_for_file: avoid_print
-      print('Error adding to favorites: $e');
-      return false;
-    }
+    return List.generate(maps.length, (i) {
+      return _mapToRecipe(maps[i]);
+    });
   }
 
-  Future<Set<Recipe>> getCartRecipes() async {
+  Future<int> updateRecipe(Recipe recipe) async {
     final db = await database;
-
-    try {
-      final recipes = await db.query('cart_recipes');
-
-      return recipes.map((recipeMap) {
-        final Map<String, dynamic> decodedMap = jsonDecode(
-          recipeMap['recipe_data'] as String,
-        );
-
-        Map<String, Amount> ingredients = {};
-        (decodedMap['ingredients'] as Map).forEach((key, value) {
-          ingredients[key] = Amount(
-            number: value['number'],
-            unit: value['unit'],
-          );
-        });
-
-        Set<Tag> tags =
-            (decodedMap['tags'] as List)
-                .map(
-                  (tagString) => Tag.values.firstWhere(
-                    (tag) => tag.toString() == tagString,
-                  ),
-                )
-                .toSet();
-
-        return Recipe(
-          name: decodedMap['name'],
-          steps: List<String>.from(decodedMap['steps']),
-          ingredients: ingredients,
-          tags: tags,
-        );
-      }).toSet();
-    } catch (e) {
-      print('Error retrieving cart recipes: $e');
-      return {};
-    }
+    return await db.update(
+      'recipes',
+      _recipeToMap(recipe),
+      where: 'id = ?',
+      whereArgs: [recipe.id],
+    );
   }
 
-  Future<Set<Recipe>> getFavoriteRecipes() async {
+  Future<int> deleteRecipe(int id) async {
     final db = await database;
-
-    try {
-      final recipes = await db.query('favorite_recipes');
-
-      return recipes.map((recipeMap) {
-        final Map<String, dynamic> decodedMap = jsonDecode(
-          recipeMap['recipe_data'] as String,
-        );
-
-        Map<String, Amount> ingredients = {};
-        (decodedMap['ingredients'] as Map).forEach((key, value) {
-          ingredients[key] = Amount(
-            number: value['number'],
-            unit: value['unit'],
-          );
-        });
-
-        Set<Tag> tags =
-            (decodedMap['tags'] as List)
-                .map(
-                  (tagString) => Tag.values.firstWhere(
-                    (tag) => tag.toString() == tagString,
-                  ),
-                )
-                .toSet();
-
-        return Recipe(
-          name: decodedMap['name'],
-          steps: List<String>.from(decodedMap['steps']),
-          ingredients: ingredients,
-          tags: tags,
-        );
-      }).toSet();
-    } catch (e) {
-      print('Error retrieving favorite recipes: $e');
-      return {};
-    }
+    return await db.delete('recipes', where: 'id = ?', whereArgs: [id]);
   }
 
-  Future<bool> deleteFromCart(Recipe recipe) async {
-    final db = await database;
-
-    try {
-      int deletedCount = await db.delete(
-        'cart_recipes',
-        where: 'id = ?',
-        whereArgs: [recipe.id],
-      );
-
-      return deletedCount > 0;
-    } catch (e) {
-      print('Error deleting from cart: $e');
-      return false;
-    }
+  Map<String, dynamic> _recipeToMap(Recipe recipe) {
+    return {
+      'name': recipe.name,
+      'steps': recipe.steps.join('|'), // Store steps as pipe-separated string
+      'ingredients': _ingredientsToString(recipe.ingredients),
+      'tags': recipe.tags.map((tag) => tag.toString()).join('|'),
+      'imagePath': recipe.image.toString(),
+    };
   }
 
-  Future<bool> deleteFromFavorites(Recipe recipe) async {
-    final db = await database;
+  Recipe _mapToRecipe(Map<String, dynamic> map) {
+    return Recipe(
+      id: map['id'],
+      name: map['name'],
+      steps: (map['steps'] as String).split('|'),
+      ingredients: _stringToIngredients(map['ingredients']),
+      tags: _stringToTags(map['tags']),
+    );
+  }
 
-    try {
-      int deletedCount = await db.delete(
-        'favorite_recipes',
-        where: 'id = ?',
-        whereArgs: [recipe.id],
-      );
+  String _ingredientsToString(Map<String, Amount> ingredients) {
+    return ingredients.entries
+        .map(
+          (entry) => '${entry.key}:${entry.value.number}:${entry.value.unit}',
+        )
+        .join('|');
+  }
 
-      return deletedCount > 0;
-    } catch (e) {
-      print('Error deleting from favorites: $e');
-      return false;
-    }
+  Map<String, Amount> _stringToIngredients(String ingredientsString) {
+    return Map.fromEntries(
+      ingredientsString.split('|').map((ingredientStr) {
+        var parts = ingredientStr.split(':');
+        return MapEntry(parts[0], Amount(number: double.parse(parts[1])));
+      }),
+    );
+  }
+
+  Set<Tag> _stringToTags(String tagsString) {
+    return tagsString
+        .split('|')
+        .where((tagStr) => tagStr.isNotEmpty)
+        .map(
+          (tagStr) => Tag.values.firstWhere((tag) => tag.toString() == tagStr),
+        )
+        .toSet();
   }
 }
