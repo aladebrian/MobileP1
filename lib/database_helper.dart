@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'recipe_model.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -60,5 +61,32 @@ class DatabaseHelper {
         FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
       )
     ''');
+  }
+}
+
+Future<void> insertRecipeData(Database db) async {
+  for (var recipe in RecipeModel.recipes) {
+    int recipeId = await db.insert('recipes', {'name': recipe.name});
+
+    for (int i = 0; i < recipe.steps.length; i++) {
+      await db.insert('steps', {
+        'recipe_id': recipeId,
+        'step_number': i + 1,
+        'description': recipe.steps[i],
+      });
+    }
+
+    for (var ingredient in recipe.ingredients) {
+      await db.insert('ingredients', {
+        'recipe_id': recipeId,
+        'name': ingredient.name,
+        'quantity': ingredient.value,
+        'unit': ingredient.unit.toString(),
+      });
+    }
+
+    for (var tag in recipe.tags) {
+      await db.insert('tags', {'recipe_id': recipeId, 'tag': tag.toString()});
+    }
   }
 }

@@ -85,17 +85,41 @@ class RecipeModel extends ChangeNotifier {
       image: AssetImage("assets/food.avif"),
     ),
     Recipe(
-      name: "Recipe 4",
-      steps: ["do this again", 'then this', 'unfortunately this'],
+      name: "One Pot Salmon and Rice",
+      steps: [
+        "Season the salmon with salt, pepper and paprika",
+        'In a medium pot, add in oil and pan fry the salmon for 2 min on each side, or until crust forms.'
+            'Remove and set aside.',
+        'In the same pan, add in butter and butter. Saute for 2-3 min.',
+        'Add in the rice, mix well making sure the rice soaks up all the oil.',
+        'Pour in the vegetable stock',
+        'Add back in the salmon, place it on top of the rice.',
+        'Once simmering, put the lid on. Cover and cook on low heat for 18-20 min. Keep an eye out to prevent burning.',
+        'Turn the heat off and let it sit for another 5 min with the lid on and enjoy!',
+      ],
       ingredients: {
-        Ingredient(name: "a lot of this", value: 20, unit: IngredientUnit.cup),
         Ingredient(
-          name: "a little bit of that",
-          value: 10,
+          name: "Salmon Fillet",
+          value: 16,
+          unit: IngredientUnit.ounce,
+        ),
+        Ingredient(name: "Mushroom", value: 1, unit: IngredientUnit.cup),
+        Ingredient(name: "Rice", value: 2, unit: IngredientUnit.cup),
+        Ingredient(
+          name: "Vegetable Stock",
+          value: 2.5,
           unit: IngredientUnit.cup,
         ),
+        Ingredient(name: "Butter", value: 2, unit: IngredientUnit.tablespoon),
+        Ingredient(name: "Salt", value: 1, unit: IngredientUnit.teaspoon),
+        Ingredient(name: "Pepper", value: 1, unit: IngredientUnit.teaspoon),
+        Ingredient(
+          name: "Paprika",
+          value: 0.5,
+          unit: IngredientUnit.tablespoon,
+        ),
       },
-      tags: {Tag.vegetarian},
+      tags: {Tag.pescetarian},
       image: AssetImage("assets/food3.png"),
     ),
   ];
