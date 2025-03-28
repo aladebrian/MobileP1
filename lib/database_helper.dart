@@ -172,4 +172,60 @@ class DatabaseHelper {
       return {};
     }
   }
+
+  Future<bool> deleteFromCart(Recipe recipe) async {
+    final db = await database;
+
+    try {
+      String recipeJson = jsonEncode({
+        'name': recipe.name,
+        'steps': recipe.steps,
+        'ingredients': recipe.ingredients.map(
+          (key, value) =>
+              MapEntry(key, {'number': value.number, 'unit': value.unit}),
+        ),
+        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
+        'image': recipe.image.toString(),
+      });
+
+      int deletedCount = await db.delete(
+        'cart_recipes',
+        where: 'recipe_data = ?',
+        whereArgs: [recipeJson],
+      );
+
+      return deletedCount > 0;
+    } catch (e) {
+      print('Error deleting from cart: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteFromFavorites(Recipe recipe) async {
+    final db = await database;
+
+    try {
+      String recipeJson = jsonEncode({
+        'name': recipe.name,
+        'steps': recipe.steps,
+        'ingredients': recipe.ingredients.map(
+          (key, value) =>
+              MapEntry(key, {'number': value.number, 'unit': value.unit}),
+        ),
+        'tags': recipe.tags.map((tag) => tag.toString()).toList(),
+        'image': recipe.image.toString(),
+      });
+
+      int deletedCount = await db.delete(
+        'favorite_recipes',
+        where: 'recipe_data = ?',
+        whereArgs: [recipeJson],
+      );
+
+      return deletedCount > 0;
+    } catch (e) {
+      print('Error deleting from favorites: $e');
+      return false;
+    }
+  }
 }
