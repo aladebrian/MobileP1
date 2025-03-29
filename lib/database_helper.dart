@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-import 'recipe_model.dart';
+import 'recipes.dart';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -62,11 +62,27 @@ class DatabaseHelper {
       )
     ''');
   }
-}
 
-Future<void> insertRecipeData(Database db) async {
-  for (var recipe in RecipeModel.recipes) {
+  Future<void> insertRecipe(Recipe recipe) async {
+    final db = await database;
+
     int recipeId = await db.insert('recipes', {'name': recipe.name});
+
+    for (var ingredient in recipe.ingredients) {
+      await db.insert('ingredients', {
+        'recipe_id': recipeId,
+        'name': ingredient.name,
+        'quantity': ingredient.value,
+        'unit': ingredient.unit.toString().split('.').last,
+      });
+    }
+
+    for (var tag in recipe.tags) {
+      await db.insert('tags', {
+        'recipe_id': recipeId,
+        'tag': tag.toString().split('.').last,
+      });
+    }
 
     for (int i = 0; i < recipe.steps.length; i++) {
       await db.insert('steps', {
@@ -75,18 +91,77 @@ Future<void> insertRecipeData(Database db) async {
         'description': recipe.steps[i],
       });
     }
+  }
 
-    for (var ingredient in recipe.ingredients) {
-      await db.insert('ingredients', {
-        'recipe_id': recipeId,
-        'name': ingredient.name,
-        'quantity': ingredient.value,
-        'unit': ingredient.unit.toString(),
-      });
+  Future<List<Recipe>> getRecipes() async {
+    final db = await database;
+    final List<Map<String, dynamic>> recipesData = await db.query('recipes');
+
+    List<Recipe> recipes = [];
+
+    for (var recipeData in recipesData) {
+      int recipeId = recipeData['id'];
+
+      final ingredientsData = await db.query(
+        'ingredients',
+        where: 'recipe_id = ?',
+        whereArgs: [recipeId],
+      );
+      Set<Ingredient> ingredients =
+          ingredientsData.map((i) {
+            String name = i['name'] as String;
+
+            double quantity =
+                i['quantity'] != null ? (i['quantity'] as num).toDouble() : 0.0;
+
+            IngredientUnit unit = IngredientUnit.values.firstWhere(
+              (e) => e.toString().split('.').last == (i['unit'] as String?),
+              orElse: () => IngredientUnit.whole,
+            );
+
+            return Ingredient(name: name, value: quantity, unit: unit);
+          }).toSet();
+
+      final stepsData = await db.query(
+        'steps',
+        where: 'recipe_id = ?',
+        whereArgs: [recipeId],
+      );
+      List<String> steps =
+          stepsData.map((s) => s['description'] as String).toList();
+
+      final tagsData = await db.query(
+        'tags',
+        where: 'recipe_id = ?',
+        whereArgs: [recipeId],
+      );
+      Set<Tag> tags =
+          tagsData.map((t) {
+            String tagString = t['tag'] as String;
+            return Tag.values.firstWhere(
+              (e) => e.toString().split('.').last == tagString,
+            );
+          }).toSet();
+
+      recipes.add(
+        Recipe(
+          id: recipeId,
+          name: recipeData['name'],
+          steps: steps,
+          ingredients: ingredients,
+          tags: tags,
+        ),
+      );
     }
 
-    for (var tag in recipe.tags) {
-      await db.insert('tags', {'recipe_id': recipeId, 'tag': tag.toString()});
-    }
+    return recipes;
+  }
+
+  Future<int> deleteRecipe(int id) async {
+    final db = await database;
+    await db.delete('steps', where: 'recipe_id = ?', whereArgs: [id]);
+    await db.delete('ingredients', where: 'recipe_id = ?', whereArgs: [id]);
+    await db.delete('tags', where: 'recipe_id = ?', whereArgs: [id]);
+    return await db.delete('recipes', where: 'id = ?', whereArgs: [id]);
   }
 }
