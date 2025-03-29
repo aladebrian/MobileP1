@@ -30,8 +30,18 @@ class Ingredient {
   Ingredient({
     required this.name,
     required this.value,
-    this.unit = IngredientUnit.whole,
+    this.unit = IngredientUnit.other,
   });
+
+  String get unitString {
+    String finalString = "$value $unit";
+    if (value == 0) {
+      finalString = "";
+    } else if (value > 1 && unit.toString() != "") {
+      finalString += "s";
+    }
+    return finalString.trim();
+  }
 
   @override
   String toString() => name;
@@ -39,9 +49,10 @@ class Ingredient {
   // The ternary ensures that only liquid units can be converted to liquid units, and solid to solid
   bool _isConvertible(IngredientUnit unit2) {
     return unit.isSolid() == unit2.isSolid() &&
-            unit.ratio != -1 &&
-            unit2.ratio != -1;
+        unit.ratio != -1 &&
+        unit2.ratio != -1;
   }
+
   double convert(IngredientUnit finalUnit) {
     return _isConvertible(finalUnit)
         ? (value * unit.ratio) / finalUnit.ratio
@@ -71,7 +82,7 @@ enum IngredientUnit {
   ounce(1),
   pound(16),
 
-  whole(-1);
+  other(-1);
 
   static List<IngredientUnit> get solidUnits => [ounce, pound];
   static List<IngredientUnit> get liquidUnits => [
@@ -82,11 +93,11 @@ enum IngredientUnit {
     pint,
     quart,
     gallon,
-    whole,
+    other,
   ];
   bool isSolid() => solidUnits.contains(this);
   @override
-  String toString() => name;
+  String toString() => this == other ? "" : name;
   final int ratio;
   const IngredientUnit(this.ratio);
   // to convert units, multiply by the ratio and divide by the next number

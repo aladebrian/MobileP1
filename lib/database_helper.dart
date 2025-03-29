@@ -116,7 +116,7 @@ class DatabaseHelper {
 
             IngredientUnit unit = IngredientUnit.values.firstWhere(
               (e) => e.toString().split('.').last == (i['unit'] as String?),
-              orElse: () => IngredientUnit.whole,
+              orElse: () => IngredientUnit.other,
             );
 
             return Ingredient(name: name, value: quantity, unit: unit);
