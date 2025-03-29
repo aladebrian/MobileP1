@@ -37,10 +37,15 @@ class Ingredient {
   String toString() => name;
 
   // The ternary ensures that only liquid units can be converted to liquid units, and solid to solid
+  bool _isConvertible(IngredientUnit unit2) {
+    return unit.isSolid() == unit2.isSolid() &&
+            unit.ratio != -1 &&
+            unit2.ratio != -1;
+  }
   double convert(IngredientUnit finalUnit) {
-    return unit.isSolid() != finalUnit.isSolid()
-        ? -1
-        : (value * unit.ratio) / finalUnit.ratio;
+    return _isConvertible(finalUnit)
+        ? (value * unit.ratio) / finalUnit.ratio
+        : 0;
   }
 
   Ingredient operator +(Ingredient other) {
@@ -53,8 +58,6 @@ class Ingredient {
     return Ingredient(name: name, value: value - otherValue, unit: unit);
   }
 }
-// [1, 2, 4, 8]
-// TODO add solid units ounces and pounds
 
 enum IngredientUnit {
   teaspoon(1),
@@ -64,10 +67,11 @@ enum IngredientUnit {
   pint(96),
   quart(192),
   gallon(768),
-  whole(-1),
 
   ounce(1),
-  pound(16);
+  pound(16),
+
+  whole(-1);
 
   static List<IngredientUnit> get solidUnits => [ounce, pound];
   static List<IngredientUnit> get liquidUnits => [
