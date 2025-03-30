@@ -25,7 +25,7 @@ class RecipeModel extends ChangeNotifier {
         ),
       },
       tags: {Tag.vegan, Tag.vegetarian},
-      image: AssetImage("assets/food.avif"),
+      image: AssetImage("assets/pbj.webp"),
     ),
     Recipe(
       name: "Mushroom Alfredo Pasta",
@@ -61,7 +61,7 @@ class RecipeModel extends ChangeNotifier {
         Ingredient(name: "Salt", value: 1, unit: IngredientUnit.teaspoon),
       },
       tags: {Tag.vegetarian},
-      image: AssetImage("assets/food2.webp"),
+      image: AssetImage("assets/mushroom_alfredo.webp"),
     ),
     Recipe(
       name: "Grilled Shrimp",
@@ -82,7 +82,7 @@ class RecipeModel extends ChangeNotifier {
         Ingredient(name: "Butter", value: 2, unit: IngredientUnit.tablespoon),
       },
       tags: {Tag.pescetarian},
-      image: AssetImage("assets/food.avif"),
+      image: AssetImage("assets/grilled_shrimp.webp"),
     ),
     Recipe(
       name: "One Pot Salmon and Rice",
@@ -120,7 +120,7 @@ class RecipeModel extends ChangeNotifier {
         ),
       },
       tags: {Tag.pescetarian},
-      image: AssetImage("assets/food3.png"),
+      image: AssetImage("assets/salmon_rice.webp"),
     ),
   ];
   static List<Recipe> get recipes => _allRecipes;
