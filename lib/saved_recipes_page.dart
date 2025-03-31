@@ -9,7 +9,7 @@ class SavedRecipesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(title: Text("Favorited Recipes")),
       body: Center(
         child: MasonryGridView.builder(
           gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
