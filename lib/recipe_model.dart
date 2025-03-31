@@ -25,7 +25,7 @@ class RecipeModel extends ChangeNotifier {
         ),
       },
       tags: {Tag.vegan, Tag.vegetarian},
-      image: AssetImage("assets/food.avif"),
+      image: AssetImage("assets/pbj.webp"),
     ),
     Recipe(
       name: "Mushroom Alfredo Pasta",
@@ -61,7 +61,7 @@ class RecipeModel extends ChangeNotifier {
         Ingredient(name: "Salt", value: 1, unit: IngredientUnit.teaspoon),
       },
       tags: {Tag.vegetarian},
-      image: AssetImage("assets/food2.webp"),
+      image: AssetImage("assets/mushroom_alfredo.webp"),
     ),
     Recipe(
       name: "Grilled Shrimp",
@@ -82,7 +82,7 @@ class RecipeModel extends ChangeNotifier {
         Ingredient(name: "Butter", value: 2, unit: IngredientUnit.tablespoon),
       },
       tags: {Tag.pescetarian},
-      image: AssetImage("assets/food.avif"),
+      image: AssetImage("assets/grilled_shrimp.webp"),
     ),
     Recipe(
       name: "One Pot Salmon and Rice",
@@ -120,7 +120,7 @@ class RecipeModel extends ChangeNotifier {
         ),
       },
       tags: {Tag.pescetarian},
-      image: AssetImage("assets/food3.png"),
+      image: AssetImage("assets/salmon_rice.webp"),
     ),
   ];
   static List<Recipe> get recipes => _allRecipes;
@@ -136,10 +136,6 @@ class RecipeModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // It seems counterintuitive to have a set of _cartRecipes and a set of _favoriteRecipes when we already had tags for them, but
-  // we need a list of the values when printing them in the cart page and favorites page (otherwise we'd have to iterate through every
-  // recipe every time), and we need a way to store this list for local storage with sqlite. The tags are still beneficial because
-  // they allow for easy access of the correct icon and icon color.
   // Cart
   final Set<Recipe> _cartRecipes = {};
   Set<Recipe> get cart => _cartRecipes;

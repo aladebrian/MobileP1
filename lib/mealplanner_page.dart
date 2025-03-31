@@ -98,7 +98,7 @@ class MealPlannerTile extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                Image(image: recipe.image),
+                Expanded(child: Image(image: recipe.image)),
                 Text(recipe.name, style: const TextStyle(color: Colors.white)),
               ],
             ),
@@ -185,5 +185,3 @@ class DayTile extends StatelessWidget {
     );
   }
 }
-
-
