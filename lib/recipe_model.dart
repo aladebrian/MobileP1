@@ -136,10 +136,6 @@ class RecipeModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // It seems counterintuitive to have a set of _cartRecipes and a set of _favoriteRecipes when we already had tags for them, but
-  // we need a list of the values when printing them in the cart page and favorites page (otherwise we'd have to iterate through every
-  // recipe every time), and we need a way to store this list for local storage with sqlite. The tags are still beneficial because
-  // they allow for easy access of the correct icon and icon color.
   // Cart
   final Set<Recipe> _cartRecipes = {};
   Set<Recipe> get cart => _cartRecipes;
