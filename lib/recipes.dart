@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:decimal/decimal.dart';
 
 class Recipe {
   final int? id;
