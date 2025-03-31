@@ -53,6 +53,9 @@ class Ingredient {
   }
 
   double convert(IngredientUnit finalUnit) {
+    if (unit == finalUnit) {
+      return value;
+    }
     return _isConvertible(finalUnit)
         ? (value * unit.ratio) / finalUnit.ratio
         : 0;
