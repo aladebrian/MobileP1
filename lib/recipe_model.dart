@@ -212,6 +212,9 @@ class RecipeModel extends ChangeNotifier {
   void removeRecipeFromGroceries(Recipe recipe) {
     for (Ingredient ingredient in recipe.ingredients) {
       _groceries[ingredient.name] = _groceries[ingredient.name]! - ingredient;
+      if (_groceries[ingredient.name]!.value == 0) {
+        _groceries.remove(ingredient.name);
+      }
     }
     notifyListeners();
   }

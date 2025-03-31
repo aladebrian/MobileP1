@@ -14,7 +14,7 @@ class GroceryListScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            for (Ingredient ingredient in context.read<RecipeModel>().groceries)
+            for (Ingredient ingredient in context.watch<RecipeModel>().groceries)
               IngredientTile(ingredient: ingredient),
           ],
         ),
