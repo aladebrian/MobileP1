@@ -10,13 +10,14 @@ class GroceryListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Column(
-        children: [
-          Text("Groceries"),
-          for (Ingredient ingredient in context.read<RecipeModel>().groceries)
-            IngredientTile(ingredient: ingredient),
-        ],
+      appBar: AppBar(title: Text("Groceries")),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            for (Ingredient ingredient in context.read<RecipeModel>().groceries)
+              IngredientTile(ingredient: ingredient),
+          ],
+        ),
       ),
     );
   }
